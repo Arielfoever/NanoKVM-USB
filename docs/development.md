@@ -88,6 +88,19 @@ packages/core     ← 协议编解码、Device 门面、接口定义（不依赖
 - Windows 安装包未配置代码签名证书，SmartScreen 会提示"未知发布者"；正式发布需配置证书。
 - GitHub Actions 的 `release.yml` 已支持三平台矩阵构建（Windows/Linux/macOS，`build:*-full`），并生成 `latest*.yml` 自动更新元数据。
 
+## CI（GitHub Actions）
+
+- **`.github/workflows/build.yml`**（push main / PR / 手动触发）：
+  - `quality`：lint + format:check + typecheck + 单测；
+  - `detect-changes`：按 `apps/browser` / `apps/desktop` / `packages` 过滤，只构建受影响的一端（`packages/**` 变化会同时触发两端）；
+  - `build-browser` / `build-desktop`（linux、windows x64）：上传安装包；手动 dispatch 时总是全量构建；同一分支的旧任务会被自动取消。
+- **`.github/workflows/release.yml`**（手动触发 `workflow_dispatch`）：
+  1. 从根 `package.json` 读取版本号，创建/复用 `v<version>` tag 并推送；
+  2. 构建浏览器 zip + 三平台桌面产物（Windows / Linux / macOS，x64 + arm64）；
+  3. 创建 GitHub Release 并附上全部产物（安装包脚本统一带 `--publish never`，发布只由 release job 完成，避免重复/竞态）。
+  - 可选 secrets：`APPLE_CERTIFICATE` + `APPLE_CERTIFICATE_PASSWORD`（macOS 签名）、`APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` + `APPLE_TEAM_ID`（macOS 公证）、`WINDOWS_CERTIFICATE` + `WINDOWS_CERTIFICATE_PASSWORD`（Windows 签名）。未配置时产物为未签名版本。
+  - 前置条件：先把新版本号提交到 `main`（tag 与产物版本都来自根 `package.json`）。
+
 ## 常见问题
 
 ### 在 ReFS / Dev Drive 上 `pnpm dev:desktop` 启动即崩溃（exit code -2147483645 / 0xc0000005）

@@ -13,10 +13,16 @@ env:
   NODE_VERSION: '24'
   PNPM_VERSION: '12.21.0'
 
+# 同一分支的重复 push / PR 只保留最新一次构建
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   quality:
-    name: Lint / Format / Typecheck
+    name: Quality (lint / format / typecheck / test)
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,6 +55,8 @@ jobs:
 
   detect-changes:
     name: Detect Changed Paths
+    # workflow_dispatch 时不需要过滤，直接全量构建
+    if: github.event_name != 'workflow_dispatch'
     runs-on: ubuntu-latest
     outputs:
       browser: ${{ steps.filter.outputs.browser }}
@@ -68,12 +76,14 @@ jobs:
               - 'apps/browser/**'
               - 'packages/**'
               - 'package.json'
+              - 'tsconfig.base.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
             desktop:
               - 'apps/desktop/**'
               - 'packages/**'
               - 'package.json'
+              - 'tsconfig.base.json'
               - 'pnpm-lock.yaml'
               - 'pnpm-workspace.yaml'
 
@@ -81,7 +91,8 @@ jobs:
     name: Build Browser Bundle
     needs: detect-changes
     runs-on: ubuntu-latest
-    if: needs.detect-changes.outputs.browser == 'true'
+    timeout-minutes: 15
+    if: always() && (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.browser == 'true')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -111,10 +122,11 @@ jobs:
           if-no-files-found: error
 
   build-desktop:
-    name: Build Desktop Apps
+    name: Build Desktop (${{ matrix.target }})
     needs: detect-changes
     runs-on: ${{ matrix.os }}
-    if: needs.detect-changes.outputs.desktop == 'true'
+    timeout-minutes: 45
+    if: always() && (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.desktop == 'true')
     strategy:
       fail-fast: false
       matrix:
@@ -122,13 +134,11 @@ jobs:
           - os: ubuntu-latest
             target: linux
             build_script: build:linux
-            artifact_name: desktop-linux
+            artifact_name: desktop-linux-x64
           - os: windows-latest
             target: windows
             build_script: build:win
-            artifact_name: desktop-windows
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            artifact_name: desktop-windows-x64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -156,9 +166,14 @@ jobs:
       - name: Build desktop package
         run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
 
-      - name: Upload desktop artifacts
+      - name: Upload desktop installers
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          path: apps/desktop/dist
+          path: |
+            apps/desktop/dist/*.exe
+            apps/desktop/dist/*.AppImage
+            apps/desktop/dist/*.deb
+            apps/desktop/dist/*.rpm
+            apps/desktop/dist/latest*.yml
           if-no-files-found: error

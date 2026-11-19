@@ -28,6 +28,12 @@ nsis:
   createStartMenuShortcut: true
 
 mac:
+  # dmg 用于安装，zip 用于 electron-updater 自动更新（缺一不可）
+  # 显式带 arch，避免 x64/arm64 的 zip 同名覆盖
+  artifactName: ${productName}-${version}-${os}-${arch}.${ext}
+  target:
+    - dmg
+    - zip
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:
     NSCameraUsageDescription: Application requests access to the device's camera.
