@@ -1,4 +1,5 @@
 import { StrictMode } from 'react';
+import { StyleProvider } from '@ant-design/cssinjs';
 import { ConfigProvider, theme } from 'antd';
 import { createRoot } from 'react-dom/client';
 
@@ -15,10 +16,12 @@ initServices(platform, createDevice(platform.transport));
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
+    <StyleProvider layer>
+      <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
       <div className="flex h-screen w-screen flex-col items-center justify-center overflow-hidden">
         <App />
       </div>
     </ConfigProvider>
+    </StyleProvider>
   </StrictMode>
 );

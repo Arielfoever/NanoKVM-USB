@@ -120,7 +120,7 @@ export const App = () => {
   }
 
   if (state === 'loading') {
-    return <Spin size="large" spinning={true} tip={t('camera.tip')} fullscreen />;
+    return <Spin size="large" spinning={true} description={t('camera.tip')} fullscreen />;
   }
 
   if (state === 'failed') {
@@ -142,7 +142,7 @@ export const App = () => {
           <Menu />
 
           {serialState === 'notSupported' && (
-            <Alert message={t('serial.notSupported')} type="warning" banner closable />
+            <Alert title={t('serial.notSupported')} type="warning" banner closable />
           )}
 
           {serialState === 'connected' && (

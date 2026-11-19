@@ -7,7 +7,7 @@ export const Recorder = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [elapsedMs, setElapsedMs] = useState(0);
 
-  const mediaRecorderRef = useRef<MediaRecorder>();
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const fileWritableRef = useRef<FileSystemWritableFileStream | null>(null);
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);

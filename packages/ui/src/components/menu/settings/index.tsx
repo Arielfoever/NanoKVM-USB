@@ -76,7 +76,7 @@ export const Settings = () => {
         open={isModalOpen}
         width={820}
         footer={null}
-        styles={{ content: { padding: 0 } }}
+        styles={{ container: { padding: 0 } }}
         onCancel={closeModal}
         destroyOnHidden
       >

@@ -10,7 +10,6 @@
     "composite": true,
     "module": "ESNext",
     "moduleResolution": "bundler",
-    "baseUrl": ".",
     "paths": {
       "@nanokvm/core": ["../../packages/core/src/index.ts"],
       "@nanokvm/core/*": ["../../packages/core/src/*"]

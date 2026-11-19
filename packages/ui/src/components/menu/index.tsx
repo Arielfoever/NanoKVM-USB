@@ -86,7 +86,7 @@ export const Menu = () => {
                 <GripVerticalIcon size={18} />
               </div>
             </strong>
-            <Divider type="vertical" />
+            <Divider orientation="vertical" />
 
             <Video />
             <Audio />
@@ -95,7 +95,7 @@ export const Menu = () => {
               <>
                 <SerialPort onOpenDeviceModal={() => setDeviceModalOpen(true)} />
 
-                <Divider type="vertical" className="px-0.5" />
+                <Divider orientation="vertical" className="px-0.5" />
 
                 <Keyboard />
                 <Mouse />
@@ -104,7 +104,7 @@ export const Menu = () => {
 
             <Recorder />
 
-            <Divider type="vertical" className="px-0.5" />
+            <Divider orientation="vertical" className="px-0.5" />
 
             <Settings />
             <Fullscreen />
@@ -124,7 +124,7 @@ export const Menu = () => {
                   <GripVerticalIcon size={18} />
                 </div>
               </strong>
-              <Divider type="vertical" style={{ margin: '0 4px' }} />
+              <Divider orientation="vertical" style={{ margin: '0 4px' }} />
               <div
                 className="flex size-[26px] cursor-pointer items-center justify-center rounded text-neutral-400 hover:bg-neutral-700/70 hover:text-white"
                 onClick={toggleMenu}
