@@ -6,16 +6,20 @@ type Options = {
   onDisconnect?: () => void
 }
 
+/**
+ * 桌面端串口字节传输。
+ *
+ * 只负责打开/关闭串口、收发原始字节以及断连通知，
+ * 不包含任何协议编解码逻辑（协议已上移到 `@nanokvm/core`）。
+ */
 export class SerialPort {
   readonly SERIAL_BAUD_RATE = 57600
   readonly READ_TIMEOUT = 500
 
-  private port: SP | null
+  private port: SP | null = null
   private onDisconnect?: () => void
-
-  constructor() {
-    this.port = null
-  }
+  private buffer: number[] = []
+  private waiters: Array<() => void> = []
 
   async init(options: Options): Promise<void> {
     try {
@@ -27,34 +31,78 @@ export class SerialPort {
       const path = options.path
       const baudRate = options.baudRate || this.SERIAL_BAUD_RATE
 
-      this.port = new SP({ path, baudRate }, (err) => {
-        if (err) {
-          console.error('Error opening port: ', err.message)
-          throw err
-        }
+      this.buffer = []
+
+      const port = await new Promise<SP>((resolve, reject) => {
+        const instance = new SP({ path, baudRate }, (err) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(instance)
+          }
+        })
+
+        // 打开失败时 serialport 可能同时 emit 'error'，先挂空监听避免进程崩溃
+        instance.on('error', () => {})
       })
+
+      this.port = port
 
       if (options.onDisconnect) {
         this.onDisconnect = options.onDisconnect
       }
 
-      this.port.on('close', () => {
+      port.on('data', this.handleData)
+
+      port.on('close', () => {
         console.warn('Serial port closed event received')
         this.handleDisconnect()
       })
 
-      this.port.on('error', (err) => {
+      port.on('error', (err) => {
         console.error('Serial port error:', err)
         if (this.isDisconnectError(err)) {
           this.handleDisconnect()
         }
       })
-
-      this.port.on('data', () => {})
     } catch (err) {
       console.error('Error opening serial port:', err)
       throw err
     }
+  }
+
+  private handleData = (data: Buffer): void => {
+    this.buffer.push(...data)
+    this.notifyWaiters()
+  }
+
+  private notifyWaiters(): void {
+    const waiters = this.waiters
+    this.waiters = []
+    for (const waiter of waiters) {
+      waiter()
+    }
+  }
+
+  private waitForData(timeoutMs: number): Promise<void> {
+    return new Promise<void>((resolve) => {
+      let settled = false
+      let timer: ReturnType<typeof setTimeout>
+
+      const finish = (): void => {
+        if (settled) return
+        settled = true
+        clearTimeout(timer)
+        resolve()
+      }
+
+      timer = setTimeout(() => {
+        this.waiters = this.waiters.filter((waiter) => waiter !== finish)
+        finish()
+      }, timeoutMs)
+
+      this.waiters.push(finish)
+    })
   }
 
   private handleDisconnect(): void {
@@ -62,6 +110,9 @@ export class SerialPort {
       this.port.removeAllListeners()
       this.port = null
     }
+
+    this.buffer = []
+    this.notifyWaiters()
 
     if (this.onDisconnect) {
       this.onDisconnect()
@@ -80,67 +131,70 @@ export class SerialPort {
   }
 
   async write(data: number[]): Promise<void> {
-    if (!this.port?.isOpen) {
+    const port = this.port
+    if (!port?.isOpen) {
       return
     }
 
-    const uint8Array = new Uint8Array(data)
-    this.port.write(uint8Array)
+    await new Promise<void>((resolve, reject) => {
+      port.write(new Uint8Array(data), (err) => {
+        if (err) {
+          console.error('Error writing serial port data:', err)
+          reject(err)
+        } else {
+          resolve()
+        }
+      })
+    })
   }
 
-  async read(minSize: number, sleep: number = 0): Promise<number[]> {
+  async read(minSize: number, timeoutMs: number = this.READ_TIMEOUT): Promise<number[]> {
     if (!this.port?.isOpen) {
       throw new Error('Serial port not initialized')
     }
 
-    const result: number[] = []
-    const startTime = Date.now()
+    const target = Math.max(minSize, 0)
+    const deadline = Date.now() + timeoutMs
 
-    while (result.length < minSize) {
-      if (Date.now() - startTime > this.READ_TIMEOUT) {
-        return []
-      }
-
-      const { value, done } = await this.port.read()
-      if (done) {
+    while (this.buffer.length < target) {
+      const remaining = deadline - Date.now()
+      if (remaining <= 0) {
         break
       }
 
-      const data = Array.from(value) as number[]
-      result.push(...data)
+      await this.waitForData(remaining)
     }
 
-    if (sleep > 0) {
-      await new Promise((resolve) => setTimeout(resolve, sleep))
-    }
-
-    return result
+    return this.buffer.splice(0, Math.min(this.buffer.length, target))
   }
 
   async close(): Promise<void> {
-    if (this.port?.isOpen) {
-      try {
-        this.port.removeAllListeners()
-
-        await new Promise<void>((resolve, reject) => {
-          this.port!.close((err) => {
-            if (err) {
-              console.error('close-serial-port error', err)
-              reject(err)
-            } else {
-              console.log('Serial port closed successfully')
-              resolve()
-            }
-          })
-        })
-
-        this.port = null
-      } catch (error) {
-        console.error('close-serial-port error', error)
-        throw error
-      }
-    } else {
+    const port = this.port
+    if (!port?.isOpen) {
       console.log('Serial port is already closed or not initialized')
+      return
+    }
+
+    try {
+      port.removeAllListeners()
+      this.port = null
+      this.buffer = []
+      this.notifyWaiters()
+
+      await new Promise<void>((resolve, reject) => {
+        port.close((err) => {
+          if (err) {
+            console.error('close-serial-port error', err)
+            reject(err)
+          } else {
+            console.log('Serial port closed successfully')
+            resolve()
+          }
+        })
+      })
+    } catch (error) {
+      console.error('close-serial-port error', error)
+      throw error
     }
   }
 }

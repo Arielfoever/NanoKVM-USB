@@ -1,0 +1,27 @@
+singleQuote: true
+semi: false
+printWidth: 100
+tabWidth: 2
+trailingComma: none
+bracketSpacing: true
+importOrder:
+  - ^(react/(.*)$)|^(react$)
+  - <THIRD_PARTY_MODULES>
+  - ''
+  - ^@nanokvm/(.*)$
+  - ^@/(.*)$
+  - ''
+  - '^[./]'
+importOrderSeparation: false
+importOrderSortSpecifiers: true
+importOrderBuiltinModulesToTop: true
+importOrderParserPlugins:
+  - typescript
+  - jsx
+  - tsx
+importOrderMergeDuplicateImports: true
+importOrderCombineTypeAndValueImports: true
+plugins:
+  - '@ianvs/prettier-plugin-sort-imports'
+  - prettier-plugin-tailwindcss
+tailwindStylesheet: ./packages/ui/src/styles/index.css

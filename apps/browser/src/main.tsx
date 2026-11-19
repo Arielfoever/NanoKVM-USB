@@ -2,10 +2,16 @@ import { StrictMode } from 'react';
 import { ConfigProvider, theme } from 'antd';
 import { createRoot } from 'react-dom/client';
 
-import App from './App.tsx';
+import { createDevice } from '@nanokvm/core';
+import { App, initServices } from '@nanokvm/ui';
 
-import './i18n';
-import './assets/index.css';
+import '@nanokvm/ui/i18n';
+import '@nanokvm/ui/styles/index.css';
+
+import { BrowserPlatform } from './platform/browser';
+
+const platform = new BrowserPlatform();
+initServices(platform, createDevice(platform.transport));
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

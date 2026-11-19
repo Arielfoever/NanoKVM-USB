@@ -1,18 +1,24 @@
-import React from 'react'
-import { ConfigProvider, theme } from 'antd'
-import ReactDOM from 'react-dom/client'
+import { StrictMode } from 'react';
+import { ConfigProvider, theme } from 'antd';
+import { createRoot } from 'react-dom/client';
 
-import App from './App'
+import { createDevice } from '@nanokvm/core';
+import { App, initServices } from '@nanokvm/ui';
 
-import './assets/styles/main.css'
-import './i18n'
+import '@nanokvm/ui/i18n';
+import '@nanokvm/ui/styles/index.css';
 
-ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <React.StrictMode>
+import { DesktopPlatform } from './platform/desktop';
+
+const platform = new DesktopPlatform();
+initServices(platform, createDevice(platform.transport));
+
+createRoot(document.getElementById('root') as HTMLElement).render(
+  <StrictMode>
     <ConfigProvider theme={{ algorithm: theme.darkAlgorithm }}>
       <div className="flex h-screen w-screen flex-col items-center justify-center overflow-hidden">
         <App />
       </div>
     </ConfigProvider>
-  </React.StrictMode>
-)
+  </StrictMode>
+);

@@ -1,5 +1,6 @@
+import type { UpdaterInfo } from '@nanokvm/core'
 import { BrowserWindow, ipcMain } from 'electron'
-import { autoUpdater, UpdateInfo } from 'electron-updater'
+import { autoUpdater } from 'electron-updater'
 
 import { IpcEvents } from '../../common/ipc-events'
 
@@ -30,13 +31,13 @@ export function registerUpdater(win: BrowserWindow): void {
     setImmediate(() => autoUpdater.quitAndInstall())
   })
 
-  ipcMain.handle(IpcEvents.CHECK_FOR_UPDATES, async (): Promise<UpdateInfo | undefined> => {
+  ipcMain.handle(IpcEvents.CHECK_FOR_UPDATES, async (): Promise<UpdaterInfo | null> => {
     try {
       const result = await autoUpdater.checkForUpdates()
-      return result?.updateInfo
+      return result?.updateInfo ?? null
     } catch (e) {
       console.error(e)
-      return
+      return null
     }
   })
 

@@ -25,3 +25,6 @@ allowBuilds:
   esbuild: true
   electron-winstaller: true
   '@serialport/bindings-cpp': true
+
+minimumReleaseAgeExclude:
+  - electron@45.4.1

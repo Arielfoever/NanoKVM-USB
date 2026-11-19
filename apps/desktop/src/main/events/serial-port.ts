@@ -1,80 +1,80 @@
-import { ipcMain, IpcMainInvokeEvent } from 'electron'
+import type { SerialPortInfo } from '@nanokvm/core'
+import { ipcMain } from 'electron'
+import type { IpcMainInvokeEvent } from 'electron'
 import { SerialPort } from 'serialport'
 
 import { IpcEvents } from '../../common/ipc-events'
-import { device } from '../device'
+import { SerialPort as SerialPortTransport } from '../device/serial-port'
 
-export function registerSerialPort(): void {
-  ipcMain.handle(IpcEvents.GET_SERIAL_PORTS, getSerialPorts)
-  ipcMain.handle(IpcEvents.OPEN_SERIAL_PORT, openSerialPort)
-  ipcMain.handle(IpcEvents.CLOSE_SERIAL_PORT, closeSerialPort)
-  ipcMain.handle(IpcEvents.SEND_KEYBOARD, sendKeyboard)
-  ipcMain.handle(IpcEvents.SEND_MOUSE, sendMouse)
+type OpenSerialPortOptions = {
+  path: string
+  baudRate: number
 }
 
-async function getSerialPorts(): Promise<string[]> {
+const serialPort = new SerialPortTransport()
+
+export function registerSerialPort(): void {
+  ipcMain.handle(IpcEvents.SERIAL_LIST, listSerialPorts)
+  ipcMain.handle(IpcEvents.SERIAL_OPEN, openSerialPort)
+  ipcMain.handle(IpcEvents.SERIAL_CLOSE, closeSerialPort)
+  ipcMain.handle(IpcEvents.SERIAL_READ, readSerialPort)
+  ipcMain.handle(IpcEvents.SERIAL_WRITE, writeSerialPort)
+}
+
+async function listSerialPorts(): Promise<SerialPortInfo[]> {
   try {
     const ports = await SerialPort.list()
-    const paths = ports.map((port) => port.path)
-
-    return paths.sort((a, b) => {
-      const aHasUSB = a.toLowerCase().includes('usb')
-      const bHasUSB = b.toLowerCase().includes('usb')
+    const sorted = [...ports].sort((a, b) => {
+      const aHasUSB = a.path.toLowerCase().includes('usb')
+      const bHasUSB = b.path.toLowerCase().includes('usb')
 
       if (aHasUSB && !bHasUSB) return -1
       if (!aHasUSB && bHasUSB) return 1
-      return a.localeCompare(b)
+      return a.path.localeCompare(b.path)
     })
+
+    return sorted.map((port) => ({
+      path: port.path,
+      label: port.manufacturer ? `${port.path} (${port.manufacturer})` : port.path
+    }))
   } catch (error) {
     console.error('Error listing serial ports:', error)
     return []
   }
 }
 
-async function openSerialPort(
-  e: IpcMainInvokeEvent,
-  path: string,
-  baudRate: number = 57600
-): Promise<boolean> {
-  try {
-    const onDisconnect = () => {
-      e.sender.send(IpcEvents.SERIAL_PORT_DISCONNECTED)
+async function openSerialPort(e: IpcMainInvokeEvent, options: OpenSerialPortOptions): Promise<void> {
+  const onDisconnect = (): void => {
+    if (!e.sender.isDestroyed()) {
+      e.sender.send(IpcEvents.SERIAL_DISCONNECTED)
     }
+  }
 
-    await device.serialPort.init({ path, baudRate, onDisconnect })
-
-    e.sender.send(IpcEvents.OPEN_SERIAL_PORT_RSP, '')
-    return true
+  try {
+    await serialPort.init({
+      path: options.path,
+      baudRate: options.baudRate,
+      onDisconnect
+    })
   } catch (error) {
     console.error('Error opening serial port:', error)
-    const errorMsg = error instanceof Error ? error.message : 'Unknown error'
-    e.sender.send(IpcEvents.OPEN_SERIAL_PORT_RSP, errorMsg)
-    return false
+    const message = error instanceof Error ? error.message : 'Unknown error'
+    throw new Error(message)
   }
 }
 
-async function closeSerialPort(): Promise<boolean> {
-  try {
-    await device.serialPort.close()
-    return true
-  } catch (error) {
-    console.error('Error closing serial port:', error)
-    return false
-  }
+async function closeSerialPort(): Promise<void> {
+  await serialPort.close()
 }
 
-async function sendKeyboard(_: IpcMainInvokeEvent, report: number[]): Promise<void> {
-  try {
-    await device.sendKeyboardData(report)
-  } catch (error) {
-    console.error('Error sending keyboard data:', error)
-  }
+async function readSerialPort(
+  _: IpcMainInvokeEvent,
+  minSize: number,
+  timeoutMs?: number
+): Promise<number[]> {
+  return serialPort.read(minSize, timeoutMs)
 }
 
-async function sendMouse(_: IpcMainInvokeEvent, report: number[]): Promise<void> {
-  try {
-    await device.sendMouseData(report)
-  } catch (error) {
-    console.error('Error sending mouse data:', error)
-  }
+async function writeSerialPort(_: IpcMainInvokeEvent, data: number[]): Promise<void> {
+  await serialPort.write(data)
 }
