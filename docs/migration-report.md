@@ -43,7 +43,9 @@
 
 ## 4. 尚未自动验证（需人工/流水线确认）
 
-1. **GUI + 硬件冒烟**：本环境无法启动 Electron 窗口（进程级限制），需按 [refactor-plan.md 附录 C](./refactor-plan.md) 的 16 项手工验证：摄像头出图、串口自动重连、右 Shift/AltGr、鼠标三模式、快捷键、粘贴、虚拟键盘、菜单持久化、分辨率/旋转/缩放、音频、拔插断连、语言切换、自动更新检查。
+## 4. 尚未自动验证（需人工/流水线确认）
+
+1. **GUI + 硬件冒烟**：已在开发模式下用 CDP 验证渲染层可启动（窗口渲染、i18n 中文、统一设备面板含波特率/自动重连、`window.api` 存在、0 console error），但摄像头/串口/键鼠等硬件交互仍需按 [refactor-plan.md 附录 C](./refactor-plan.md) 的 16 项手工验证：摄像头出图、串口自动重连、右 Shift/AltGr、鼠标三模式、快捷键、粘贴、虚拟键盘、菜单持久化、分辨率/旋转/缩放、音频、拔插断连、语言切换、自动更新检查。
 2. **antd 6 视觉回归**：Divider / Modal / Popover / message / Progress 的内部 DOM 在 v6 有变化，需要截图对比弹窗、下拉、分割线、消息提示。
 3. **三平台产物**：macOS（签名/公证）与 Linux（libudev/rpm）只能在 CI 验证；本次仅在 Windows 本机打包。
 4. **自动更新"旧 → 新"链路**：需用旧版本安装包实测；产物命名与 `publish` 配置未改。
@@ -56,3 +58,9 @@
 - **pnpm 12 `minimumReleaseAgeExclude`**：pnpm 12 默认对"过新"版本做供应链门禁，`pnpm-workspace.yaml` 中已记录 electron / i18next / lucide 的放行项；升级依赖时 pnpm 会自动追加，需一并提交。
 - **electron postinstall**：本机曾出现 `pnpm install` 未自动下载 electron 二进制的情况（手动 `node install.js` 后可恢复）；CI 若出现桌面打包缺 electron，可显式 `pnpm rebuild electron` 或检查 `allowBuilds`。
 - **i18n 源数据笔误**：桌面端旧 `zh.ts`/`ko.ts` 存在 `kkeyboard`/`kekeyboard` 笔误 key，合并时原样保留（无代码引用），可在后续翻译清理中删除。
+
+## 6. 本机环境注意：ReFS / Dev Drive 与 Electron 沙箱
+
+本仓库位于 ReFS 卷（`F:`，Windows Dev Drive 类文件系统）时，**Electron 沙箱初始化会失败**：`electron-vite dev` 在 "starting electron app..." 后立即崩溃（exit `-2147483645` / `0xc0000005`），`electron.exe --version` 也会崩；把同一份 `electron.exe` 复制到 NTFS（`%LOCALAPPDATA%\Temp`）即可正常运行，与 Electron/应用版本无关（Electron 35 / 45 均可复现）。
+
+本机开发用 `pnpm dev:desktop:nosandbox`（= `electron-vite dev --noSandbox`，仅开发期禁用沙箱）即可正常启动。发布产物安装到 NTFS 用户目录，不受影响；彻底解决方式是把仓库移到 NTFS 卷。详情见 [docs/development.md](./development.md)。

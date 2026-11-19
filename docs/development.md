@@ -70,6 +70,24 @@ packages/core     ← 协议编解码、Device 门面、接口定义（不依赖
 - **Prettier**：根 `.prettierrc.yaml`（`semi: false`、单引号、import 排序、Tailwind v4 类名排序），全仓统一，不再保留各 app 的独立配置。
 - 提交前：`pnpm lint && pnpm format:check && pnpm typecheck`。
 
+## 常见问题
+
+### 在 ReFS / Dev Drive 上 `pnpm dev:desktop` 启动即崩溃（exit code -2147483645 / 0xc0000005）
+
+现象：`electron-vite dev` 打印 "starting electron app..." 后立刻退出，Windows 事件日志显示 `electron.exe` 异常代码 `0xc0000005`，甚至 `electron.exe --version` 也会崩。
+
+原因：仓库所在卷是 **ReFS（如 Windows Dev Drive）** 时，Chromium/Electron 的沙箱初始化会失败；把同一份 `electron.exe` 放到 NTFS 卷（如 `%LOCALAPPDATA%\Temp`）就能正常运行。与 Electron/应用代码版本无关。
+
+临时方案（仅本机开发）：
+
+```powershell
+pnpm dev:desktop:nosandbox     # = electron-vite dev --noSandbox，仅开发期禁用沙箱
+# 或者：$env:ELECTRON_DISABLE_SANDBOX=1; pnpm dev:desktop
+```
+
+- `--no-sandbox` **只用于本机开发**，不要用于发布；安装包默认安装到 NTFS 的用户目录，不受此问题影响。
+- 彻底解决：把仓库移到 NTFS 卷。
+
 ## 验证清单
 
 仓库目前没有自动化 UI 测试，重构/升级后至少运行：
