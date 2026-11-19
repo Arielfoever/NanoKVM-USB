@@ -43,6 +43,8 @@ dmg:
   sign: true
 
 linux:
+  # 包名是 @nanokvm/desktop，构建 Linux 时必须显式指定合法的可执行文件名
+  executableName: nanokvm-usb
   target:
     - AppImage
     - deb

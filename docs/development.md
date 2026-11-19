@@ -70,6 +70,24 @@ packages/core     ← 协议编解码、Device 门面、接口定义（不依赖
 - **Prettier**：根 `.prettierrc.yaml`（`semi: false`、单引号、import 排序、Tailwind v4 类名排序），全仓统一，不再保留各 app 的独立配置。
 - 提交前：`pnpm lint && pnpm format:check && pnpm typecheck`。
 
+## 构建各平台安装包
+
+产物目录统一为 `apps/desktop/dist/`（已 gitignore）。
+
+| 平台 | 命令 | 产物 |
+| --- | --- | --- |
+| Windows x64 | `pnpm --filter @nanokvm/desktop run build:win` | `NanoKVM-USB-<ver>-win-x64-setup.exe` |
+| Windows x64+arm64 | `pnpm --filter @nanokvm/desktop run build:win-full` | `NanoKVM-USB-<ver>-win-setup.exe`（含两个架构的 payload）+ 各架构独立安装包 |
+| Linux x64 / arm64 | 在 Linux 上 `pnpm --filter @nanokvm/desktop run build:linux`（或 `build:linux-full`） | AppImage / deb / rpm |
+| macOS x64 / arm64 | 在 macOS 上 `pnpm --filter @nanokvm/desktop run build:mac`（或 `build:mac-full`） | dmg / zip |
+
+注意事项：
+
+- **macOS 安装包只能在 macOS 上构建**（electron-builder 明确拒绝其他平台）；签名/公证需要 `APPLE_CERTIFICATE`/`APPLE_ID`/`APPLE_APP_SPECIFIC_PASSWORD`/`APPLE_TEAM_ID`，未配置时 `notarize.js` 会跳过公证（产物未公证，Gatekeeper 会提示）。
+- **Linux 包建议在 Linux 上构建**（或 WSL）；`rpm` 目标需要 `rpmbuild`（CI 中已 `apt-get install rpm`），deb 需要 GTK/NSS 等运行库由目标系统安装。
+- Windows 安装包未配置代码签名证书，SmartScreen 会提示"未知发布者"；正式发布需配置证书。
+- GitHub Actions 的 `release.yml` 已支持三平台矩阵构建（Windows/Linux/macOS，`build:*-full`），并生成 `latest*.yml` 自动更新元数据。
+
 ## 常见问题
 
 ### 在 ReFS / Dev Drive 上 `pnpm dev:desktop` 启动即崩溃（exit code -2147483645 / 0xc0000005）
