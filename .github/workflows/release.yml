@@ -142,6 +142,11 @@ jobs:
       APPLE_ID: ${{ secrets.APPLE_ID }}
       APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
       APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+      # Windows 签名证书（可选）。注意：不能把空值的 CSC_LINK 传给 electron-builder，
+      # 否则它会认为要签名并尝试导入空路径（macOS 上会报 "apps/desktop not a file"），
+      # 因此只在 Windows + 证书存在时于 build step 内注入。
+      WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -175,11 +180,15 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build desktop package
-        # Windows 代码签名（可选）：仅在 Windows 构建机注入，避免其他平台误用 CSC_LINK
+      - name: Build desktop package (unsigned)
+        if: matrix.os != 'windows-latest' || env.WINDOWS_CERTIFICATE == ''
+        run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
+
+      - name: Build desktop package (signed, Windows)
+        if: matrix.os == 'windows-latest' && env.WINDOWS_CERTIFICATE != ''
         env:
-          CSC_LINK: ${{ matrix.os == 'windows-latest' && secrets.WINDOWS_CERTIFICATE || '' }}
-          CSC_KEY_PASSWORD: ${{ matrix.os == 'windows-latest' && secrets.WINDOWS_CERTIFICATE_PASSWORD || '' }}
+          CSC_LINK: ${{ env.WINDOWS_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ env.WINDOWS_CERTIFICATE_PASSWORD }}
         run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
 
       - name: Upload desktop artifacts
