@@ -15,6 +15,7 @@
     "build:browser": "pnpm --filter @nanokvm/browser build",
     "build:desktop": "pnpm --filter @nanokvm/desktop build",
     "typecheck": "pnpm -r --if-present typecheck",
+    "test": "pnpm -r --if-present test",
     "lint": "node tools/lint/node_modules/eslint/bin/eslint.js --cache --config eslint.config.mjs apps packages",
     "format": "prettier --write .",
     "format:check": "prettier --check ."

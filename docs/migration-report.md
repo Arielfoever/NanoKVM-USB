@@ -2,7 +2,7 @@
 
 > 执行日期：2026-11-19
 > 基线：`main` @ `1d1dd5e`（迁移前）+ `docs/` 两份方案
-> 结果：方案 A 落地完成，按 P0 → P1 → P2 → P3 → P4 五个批次提交
+> 结果：方案 A 落地完成，按 P0 → P1 → P2 → P3 → P4 五个批次提交（另附协议单测与依赖精确化两个补充提交）
 
 ## 1. 决策记录
 
@@ -33,7 +33,8 @@
 | `pnpm install --frozen-lockfile --lockfile-only` | ✅ lockfile 与 manifest 一致 |
 | `pnpm typecheck`（TS 7.0.2） | ✅ core / ui / browser / desktop(node+web) 全绿 |
 | `pnpm lint`（ESLint 10.15.0） | ✅ 0 error，23 warning（react-hooks v7 新规则，按方案先降为 warn） |
-| `pnpm format:check` | ✅ All matched files use Prettier code style |
+| pnpm format:check | ✅ All matched files use Prettier code style |
+| pnpm test | ✅ packages/core 协议单测 16 例通过（CmdPacket/InfoPacket/Device） |
 | `pnpm build:browser` | ✅ Vite 8.3.8 产物 `apps/browser/dist` |
 | `pnpm build:desktop` | ✅ electron-vite 6 产物 `apps/desktop/out` |
 | `pnpm --filter @nanokvm/desktop build:unpack` | ✅ electron-builder 26.18.0 → `dist/win-unpacked`，serialport native 已 unpack |

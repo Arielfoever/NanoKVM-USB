@@ -44,6 +44,9 @@ jobs:
       - name: Typecheck
         run: pnpm typecheck
 
+      - name: Unit tests
+        run: pnpm test
+
   detect-changes:
     name: Detect Changed Paths
     runs-on: ubuntu-latest
