@@ -1,11 +1,12 @@
 {
-  "name": "nanokvm-usb",
+  "name": "@nanokvm/browser",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.2.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
     "lint": "eslint .",
     "format": "prettier --write .",
     "preview": "vite preview"

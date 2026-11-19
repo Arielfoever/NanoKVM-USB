@@ -1,0 +1,10 @@
+{
+  "name": "@nanokvm/ui",
+  "version": "1.2.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*"
+  }
+}

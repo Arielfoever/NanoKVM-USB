@@ -8,3 +8,12 @@
 *.njsproj
 *.sln
 *.sw?
+
+# Dependencies / build output
+node_modules/
+dist/
+out/
+release/
+*.tsbuildinfo
+.eslintcache
+*.log

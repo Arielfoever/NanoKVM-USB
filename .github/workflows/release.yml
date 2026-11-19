@@ -15,7 +15,8 @@ on:
         default: false
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: '24'
+  PNPM_VERSION: '12.21.0'
 
 jobs:
   create-tag:
@@ -29,10 +30,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Read version from package.json
+      - name: Read version from root package.json
         id: version
         run: |
-          VERSION=$(jq -r .version desktop/package.json)
+          VERSION=$(jq -r .version package.json)
           echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Create and push tag
@@ -46,29 +47,32 @@ jobs:
     name: Build Browser Bundle
     needs: create-tag
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: browser
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.create-tag.outputs.release_tag }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build static site
-        run: npm run build
+        run: pnpm --filter @nanokvm/browser build
 
       - name: Create browser archive
         run: |
-           cd dist
+           cd apps/browser/dist
            zip -r ../nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip .
            cd ..
 
@@ -76,7 +80,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
            name: browser-release
-           path: browser/nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip
+           path: apps/browser/nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip
            if-no-files-found: error
 
   build-desktop:
@@ -99,9 +103,6 @@ jobs:
             target: macos
             build_script: build:mac-full
             artifact_name: desktop-macos
-    defaults:
-      run:
-        working-directory: desktop
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       APPLE_ID: ${{ secrets.APPLE_ID }}
@@ -113,10 +114,16 @@ jobs:
         with:
           ref: ${{ needs.create-tag.outputs.release_tag }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
 
       - name: Install Linux build dependencies
         if: matrix.os == 'ubuntu-latest'
@@ -132,23 +139,23 @@ jobs:
           p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
 
       - name: Install dependencies
-        run: npm install
+        run: pnpm install --frozen-lockfile
 
       - name: Build desktop package
-        run: npm run ${{ matrix.build_script }}
+        run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
 
       - name: Upload desktop artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
           path: |
-            desktop/dist/*.exe
-            desktop/dist/*.AppImage
-            desktop/dist/*.deb
-            desktop/dist/*.rpm
-            desktop/dist/*.dmg
-            desktop/dist/*-mac.zip
-            desktop/dist/latest*.yml
+            apps/desktop/dist/*.exe
+            apps/desktop/dist/*.AppImage
+            apps/desktop/dist/*.deb
+            apps/desktop/dist/*.rpm
+            apps/desktop/dist/*.dmg
+            apps/desktop/dist/*-mac.zip
+            apps/desktop/dist/latest*.yml
           if-no-files-found: error
 
   create-release:
