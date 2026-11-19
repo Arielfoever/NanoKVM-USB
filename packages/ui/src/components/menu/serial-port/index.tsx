@@ -1,8 +1,8 @@
-import { CpuIcon } from 'lucide-react';
+import { CpuIcon } from 'lucide-react'
 
 type SerialPortProps = {
-  onOpenDeviceModal: () => void;
-};
+  onOpenDeviceModal: () => void
+}
 
 /**
  * 已连接时点击图标重新打开设备面板，用于切换串口/波特率。
@@ -14,5 +14,5 @@ export const SerialPort = ({ onOpenDeviceModal }: SerialPortProps) => {
         <CpuIcon size={18} />
       </div>
     </div>
-  );
-};
+  )
+}

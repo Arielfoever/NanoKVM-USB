@@ -1,18 +1,18 @@
-import { checkPermission } from '@/libs/media/permission.ts';
+import { checkPermission } from '@/libs/media/permission.ts'
 
 class Camera {
-  id: string = '';
-  width: number = 1920;
-  height: number = 1080;
-  audioId: string = '';
-  stream: MediaStream | null = null;
+  id: string = ''
+  width: number = 1920
+  height: number = 1080
+  audioId: string = ''
+  stream: MediaStream | null = null
 
   public async open(id: string, width: number, height: number, audioId?: string) {
     if (!id && !this.id) {
-      return;
+      return
     }
 
-    this.close();
+    this.close()
 
     const video = {
       deviceId: { exact: id },
@@ -21,9 +21,9 @@ class Camera {
       frameRate: { ideal: 60 },
       latency: { ideal: 0 },
       resizeMode: 'none'
-    };
+    }
 
-    const isMicGranted = await checkPermission('microphone');
+    const isMicGranted = await checkPermission('microphone')
     const audio =
       isMicGranted && audioId
         ? {
@@ -34,38 +34,38 @@ class Camera {
             sampleRate: 48000,
             latency: 0
           }
-        : false;
+        : false
 
-    this.id = id;
-    this.width = width;
-    this.height = height;
-    if (audioId) this.audioId = audioId;
+    this.id = id
+    this.width = width
+    this.height = height
+    if (audioId) this.audioId = audioId
 
     try {
-      this.stream = await navigator.mediaDevices.getUserMedia({ video, audio });
+      this.stream = await navigator.mediaDevices.getUserMedia({ video, audio })
     } catch {
-      this.stream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
+      this.stream = await navigator.mediaDevices.getUserMedia({ video, audio: false })
     }
   }
 
   public async updateResolution(width: number, height: number) {
-    return this.open(this.id, width, height, this.audioId);
+    return this.open(this.id, width, height, this.audioId)
   }
 
   public close(): void {
     if (this.stream) {
-      this.stream.getTracks().forEach((track) => track.stop());
-      this.stream = null;
+      this.stream.getTracks().forEach((track) => track.stop())
+      this.stream = null
     }
   }
 
   public getStream(): MediaStream | null {
-    return this.stream;
+    return this.stream
   }
 
   public isOpen(): boolean {
-    return this.stream !== null;
+    return this.stream !== null
   }
 }
 
-export const camera = new Camera();
+export const camera = new Camera()

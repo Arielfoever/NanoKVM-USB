@@ -1,24 +1,24 @@
-import { Popover } from 'antd';
-import clsx from 'clsx';
-import { useAtom } from 'jotai';
-import { SquareMousePointerIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Popover } from 'antd'
+import clsx from 'clsx'
+import { useAtom } from 'jotai'
+import { SquareMousePointerIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { mouseModeAtom } from '@/jotai/mouse.ts';
-import * as storage from '@/libs/storage';
+import { mouseModeAtom } from '@/jotai/mouse.ts'
+import * as storage from '@/libs/storage'
 
 export const Mode = () => {
-  const { t } = useTranslation();
-  const [mouseMode, setMouseMode] = useAtom(mouseModeAtom);
+  const { t } = useTranslation()
+  const [mouseMode, setMouseMode] = useAtom(mouseModeAtom)
 
   const mouseModes = [
     { name: t('mouse.absolute'), value: 'absolute' },
     { name: t('mouse.relative'), value: 'relative' }
-  ];
+  ]
 
   function update(mode: string) {
-    setMouseMode(mode);
-    storage.setMouseMode(mode);
+    setMouseMode(mode)
+    storage.setMouseMode(mode)
   }
 
   const content = (
@@ -27,7 +27,7 @@ export const Mode = () => {
         <div
           key={mode.value}
           className={clsx(
-            'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pl-2 pr-5 hover:bg-neutral-700/50',
+            'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pr-5 pl-2 hover:bg-neutral-700/50',
             mode.value === mouseMode ? 'text-blue-500' : 'text-neutral-300'
           )}
           onClick={() => update(mode.value)}
@@ -36,7 +36,7 @@ export const Mode = () => {
         </div>
       ))}
     </>
-  );
+  )
 
   return (
     <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
@@ -45,5 +45,5 @@ export const Mode = () => {
         <span>{t('mouse.mode')}</span>
       </div>
     </Popover>
-  );
-};
+  )
+}

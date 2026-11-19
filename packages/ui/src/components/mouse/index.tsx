@@ -1,12 +1,12 @@
-import { useAtomValue } from 'jotai';
+import { useAtomValue } from 'jotai'
 
-import { mouseModeAtom } from '@/jotai/mouse.ts';
+import { mouseModeAtom } from '@/jotai/mouse.ts'
 
-import { Absolute } from './absolute.tsx';
-import { Relative } from './relative.tsx';
+import { Absolute } from './absolute.tsx'
+import { Relative } from './relative.tsx'
 
 export const Mouse = () => {
-  const mouseMode = useAtomValue(mouseModeAtom);
+  const mouseMode = useAtomValue(mouseModeAtom)
 
-  return <>{mouseMode === 'relative' ? <Relative /> : <Absolute />}</>;
-};
+  return <>{mouseMode === 'relative' ? <Relative /> : <Absolute />}</>
+}

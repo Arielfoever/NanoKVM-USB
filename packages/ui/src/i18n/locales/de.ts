@@ -113,6 +113,6 @@ const de = {
       failed: 'Verbindung zu Seriell fehlgeschlagen. Bitte erneut versuchen'
     }
   }
-};
+}
 
-export default de;
+export default de

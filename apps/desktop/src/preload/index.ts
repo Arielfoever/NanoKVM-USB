@@ -1,6 +1,7 @@
-import type { UpdaterInfo } from '@nanokvm/core'
 import { contextBridge, ipcRenderer } from 'electron'
 import type { IpcRendererEvent } from 'electron'
+
+import type { UpdaterInfo } from '@nanokvm/core'
 
 import type { DesktopApi } from '../common/ipc-api'
 import { IpcEvents } from '../common/ipc-events'
@@ -59,6 +60,5 @@ if (process.contextIsolated) {
     console.error(error)
   }
 } else {
-  // @ts-ignore (define in dts)
   window.api = api
 }

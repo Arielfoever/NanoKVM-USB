@@ -1,48 +1,48 @@
-import { useState } from 'react';
-import { ClipboardIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useState } from 'react'
+import { ClipboardIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { getDevice } from '@/services';
-import { CharCodes, ShiftChars } from '@/libs/keyboard/charCodes.ts';
-import { getModifierBit } from '@/libs/keyboard/keymap.ts';
+import { CharCodes, ShiftChars } from '@/libs/keyboard/charCodes.ts'
+import { getModifierBit } from '@/libs/keyboard/keymap.ts'
+import { getDevice } from '@/services'
 
 export const Paste = () => {
-  const { t } = useTranslation();
-  const [isLoading, setIsLoading] = useState(false);
+  const { t } = useTranslation()
+  const [isLoading, setIsLoading] = useState(false)
 
   async function paste(): Promise<void> {
-    if (isLoading) return;
-    setIsLoading(true);
+    if (isLoading) return
+    setIsLoading(true)
 
     try {
-      const text = await navigator.clipboard.readText();
-      if (!text) return;
+      const text = await navigator.clipboard.readText()
+      if (!text) return
 
       for (const char of text) {
-        const ascii = char.charCodeAt(0);
+        const ascii = char.charCodeAt(0)
 
-        const code = CharCodes[ascii];
-        if (!code) continue;
+        const code = CharCodes[ascii]
+        if (!code) continue
 
-        let modifier = 0;
+        let modifier = 0
         if ((ascii >= 65 && ascii <= 90) || ShiftChars[ascii]) {
-          modifier |= getModifierBit('ShiftLeft');
+          modifier |= getModifierBit('ShiftLeft')
         }
 
-        await send(modifier, code);
-        await new Promise((r) => setTimeout(r, 50));
-        await send(0, 0);
+        await send(modifier, code)
+        await new Promise((r) => setTimeout(r, 50))
+        await send(0, 0)
       }
     } catch (e) {
-      console.log(e);
+      console.log(e)
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
   }
 
   async function send(modifier: number, code: number): Promise<void> {
-    const keys = [modifier, 0, code, 0, 0, 0, 0, 0];
-    await getDevice().sendKeyboardData(keys);
+    const keys = [modifier, 0, code, 0, 0, 0, 0, 0]
+    await getDevice().sendKeyboardData(keys)
   }
 
   return (
@@ -53,5 +53,5 @@ export const Paste = () => {
       <ClipboardIcon size={16} />
       <span>{t('keyboard.paste')}</span>
     </div>
-  );
-};
+  )
+}

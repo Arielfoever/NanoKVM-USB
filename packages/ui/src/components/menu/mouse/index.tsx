@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { Divider, Popover } from 'antd';
-import { useAtom, useSetAtom } from 'jotai';
-import { MouseIcon } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { Divider, Popover } from 'antd'
+import { useAtom, useSetAtom } from 'jotai'
+import { MouseIcon } from 'lucide-react'
 
 import {
   mouseJigglerModeAtom,
@@ -9,53 +9,53 @@ import {
   mouseStyleAtom,
   scrollDirectionAtom,
   scrollIntervalAtom
-} from '@/jotai/mouse.ts';
-import { mouseJiggler } from '@/libs/mouse-jiggler';
-import * as storage from '@/libs/storage';
+} from '@/jotai/mouse.ts'
+import { mouseJiggler } from '@/libs/mouse-jiggler'
+import * as storage from '@/libs/storage'
 
-import { Direction } from './direction.tsx';
-import { Jiggler } from './jiggler.tsx';
-import { Mode } from './mode.tsx';
-import { Speed } from './speed.tsx';
-import { Style } from './style.tsx';
+import { Direction } from './direction.tsx'
+import { Jiggler } from './jiggler.tsx'
+import { Mode } from './mode.tsx'
+import { Speed } from './speed.tsx'
+import { Style } from './style.tsx'
 
 export const Mouse = () => {
-  const [mouseStyle, setMouseStyle] = useAtom(mouseStyleAtom);
-  const [mouseMode, setMouseMode] = useAtom(mouseModeAtom);
-  const setScrollDirection = useSetAtom(scrollDirectionAtom);
-  const setScrollInterval = useSetAtom(scrollIntervalAtom);
-  const setMouseJigglerMode = useSetAtom(mouseJigglerModeAtom);
+  const [mouseStyle, setMouseStyle] = useAtom(mouseStyleAtom)
+  const [mouseMode, setMouseMode] = useAtom(mouseModeAtom)
+  const setScrollDirection = useSetAtom(scrollDirectionAtom)
+  const setScrollInterval = useSetAtom(scrollIntervalAtom)
+  const setMouseJigglerMode = useSetAtom(mouseJigglerModeAtom)
 
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
   useEffect(() => {
-    initMouse();
-  }, []);
+    initMouse()
+  }, [])
 
   function initMouse() {
-    const style = storage.getMouseStyle();
+    const style = storage.getMouseStyle()
     if (style && style !== mouseStyle) {
-      setMouseStyle(style);
+      setMouseStyle(style)
     }
 
-    const mode = storage.getMouseMode();
+    const mode = storage.getMouseMode()
     if (mode && mode !== mouseMode) {
-      setMouseMode(mode);
+      setMouseMode(mode)
     }
 
-    const direction = storage.getMouseScrollDirection();
+    const direction = storage.getMouseScrollDirection()
     if (direction) {
-      setScrollDirection(direction > 0 ? 1 : -1);
+      setScrollDirection(direction > 0 ? 1 : -1)
     }
 
-    const interval = storage.getMouseScrollInterval();
+    const interval = storage.getMouseScrollInterval()
     if (interval) {
-      setScrollInterval(interval);
+      setScrollInterval(interval)
     }
 
-    const jiggler = storage.getMouseJigglerMode();
-    mouseJiggler.setMode(jiggler);
-    setMouseJigglerMode(jiggler);
+    const jiggler = storage.getMouseJigglerMode()
+    mouseJiggler.setMode(jiggler)
+    setMouseJigglerMode(jiggler)
   }
 
   const content = (
@@ -68,7 +68,7 @@ export const Mouse = () => {
       <Divider style={{ margin: '5px 0 5px 0' }} />
       <Jiggler />
     </div>
-  );
+  )
 
   return (
     <Popover
@@ -83,5 +83,5 @@ export const Mouse = () => {
         <MouseIcon size={18} />
       </div>
     </Popover>
-  );
-};
+  )
+}

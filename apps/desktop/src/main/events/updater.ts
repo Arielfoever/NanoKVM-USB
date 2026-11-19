@@ -1,6 +1,7 @@
-import type { UpdaterInfo } from '@nanokvm/core'
 import { BrowserWindow, ipcMain } from 'electron'
 import { autoUpdater } from 'electron-updater'
+
+import type { UpdaterInfo } from '@nanokvm/core'
 
 import { IpcEvents } from '../../common/ipc-events'
 

@@ -68,6 +68,6 @@ const zh_tw = {
       download: '下載'
     }
   }
-};
+}
 
-export default zh_tw;
+export default zh_tw

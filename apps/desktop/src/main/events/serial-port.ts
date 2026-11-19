@@ -1,7 +1,8 @@
-import type { SerialPortInfo } from '@nanokvm/core'
 import { ipcMain } from 'electron'
 import type { IpcMainInvokeEvent } from 'electron'
 import { SerialPort } from 'serialport'
+
+import type { SerialPortInfo } from '@nanokvm/core'
 
 import { IpcEvents } from '../../common/ipc-events'
 import { SerialPort as SerialPortTransport } from '../device/serial-port'
@@ -43,7 +44,10 @@ async function listSerialPorts(): Promise<SerialPortInfo[]> {
   }
 }
 
-async function openSerialPort(e: IpcMainInvokeEvent, options: OpenSerialPortOptions): Promise<void> {
+async function openSerialPort(
+  e: IpcMainInvokeEvent,
+  options: OpenSerialPortOptions
+): Promise<void> {
   const onDisconnect = (): void => {
     if (!e.sender.isDestroyed()) {
       e.sender.send(IpcEvents.SERIAL_DISCONNECTED)
@@ -59,7 +63,7 @@ async function openSerialPort(e: IpcMainInvokeEvent, options: OpenSerialPortOpti
   } catch (error) {
     console.error('Error opening serial port:', error)
     const message = error instanceof Error ? error.message : 'Unknown error'
-    throw new Error(message)
+    throw new Error(message, { cause: error })
   }
 }
 

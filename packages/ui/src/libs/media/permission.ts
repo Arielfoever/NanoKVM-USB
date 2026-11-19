@@ -1,22 +1,22 @@
-import type { Resolution } from '@/types.ts';
+import type { Resolution } from '@/types.ts'
 
-import { getPlatform } from '../../services';
+import { getPlatform } from '../../services'
 
 export async function checkPermission(device: 'camera' | 'microphone'): Promise<boolean> {
   try {
-    return await getPlatform().checkMediaPermission(device);
+    return await getPlatform().checkMediaPermission(device)
   } catch (error) {
-    console.error(error);
-    return false;
+    console.error(error)
+    return false
   }
 }
 
 export async function requestCameraPermission(resolution?: Resolution): Promise<boolean> {
-  const platform = getPlatform();
+  const platform = getPlatform()
 
   try {
-    const granted = await platform.requestMediaPermission('camera');
-    if (granted) return true;
+    const granted = await platform.requestMediaPermission('camera')
+    if (granted) return true
 
     // 某些平台（浏览器 / 非 macOS 桌面）需要真正打开一次设备才能完成授权
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -25,20 +25,20 @@ export async function requestCameraPermission(resolution?: Resolution): Promise<
         height: { ideal: resolution?.height || 1080 },
         frameRate: { ideal: 60 }
       }
-    });
-    stream.getTracks().forEach((track) => track.stop());
-    return true;
+    })
+    stream.getTracks().forEach((track) => track.stop())
+    return true
   } catch (err: any) {
-    return !(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
+    return !(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')
   }
 }
 
 export async function requestMicrophonePermission(): Promise<boolean> {
-  const platform = getPlatform();
+  const platform = getPlatform()
 
   try {
-    const granted = await platform.requestMediaPermission('microphone');
-    if (granted) return true;
+    const granted = await platform.requestMediaPermission('microphone')
+    if (granted) return true
 
     const stream = await navigator.mediaDevices.getUserMedia({
       audio: {
@@ -47,11 +47,11 @@ export async function requestMicrophonePermission(): Promise<boolean> {
         autoGainControl: false,
         sampleRate: 48000
       }
-    });
-    stream.getTracks().forEach((track) => track.stop());
-    return true;
+    })
+    stream.getTracks().forEach((track) => track.stop())
+    return true
   } catch (err: any) {
-    console.log('failed to request media permissions: ', err);
-    return !(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
+    console.log('failed to request media permissions: ', err)
+    return !(err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')
   }
 }

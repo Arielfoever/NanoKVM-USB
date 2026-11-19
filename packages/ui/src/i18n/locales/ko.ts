@@ -85,7 +85,8 @@ const ko = {
       download: '다운로드'
     },
     serial: {
-      notSupported: '시리얼이 지원되지 않습니다. 마우스와 키보드를 사용하려면 Chrome 브라우저를 사용하세요.',
+      notSupported:
+        '시리얼이 지원되지 않습니다. 마우스와 키보드를 사용하려면 Chrome 브라우저를 사용하세요.',
       failed: '시리얼 연결에 실패했습니다. 다시 시도해 주세요.'
     },
     keyboard: {
@@ -98,6 +99,6 @@ const ko = {
       }
     }
   }
-};
+}
 
-export default ko;
+export default ko

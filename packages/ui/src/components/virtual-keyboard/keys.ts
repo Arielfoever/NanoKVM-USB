@@ -90,7 +90,7 @@ export const keyboardOptions = {
     '{menu}': 'Menu',
     '{controlright}': 'Ctrl'
   }
-};
+}
 
 // control keys
 export const keyboardControlPadOptions = {
@@ -115,7 +115,7 @@ export const keyboardControlPadOptions = {
     '{end}': 'End',
     '{pagedown}': 'PgDn'
   }
-};
+}
 
 // arrow keys
 export const keyboardArrowsOptions = {
@@ -124,7 +124,7 @@ export const keyboardArrowsOptions = {
   layout: {
     default: ['{arrowup}', '{arrowleft} {arrowdown} {arrowright}']
   }
-};
+}
 
 // keys require special mapping
 export const specialKeys: Record<string, string> = {
@@ -157,7 +157,7 @@ export const specialKeys: Record<string, string> = {
   '{arrowleft}': 'ArrowLeft',
   '{arrowdown}': 'ArrowDown',
   '{arrowup}': 'ArrowUp'
-};
+}
 
 // modifier keys
 export const modifierKeys: Record<string, string> = {
@@ -171,7 +171,7 @@ export const modifierKeys: Record<string, string> = {
   '{altright}': 'AltRight',
   '{metaright}': 'MetaRight',
   '{winright}': 'WinRight'
-};
+}
 
 // double line display buttons
 export const doubleKeys = [
@@ -196,4 +196,4 @@ export const doubleKeys = [
   'Comma',
   'Period',
   'Slash'
-];
+]

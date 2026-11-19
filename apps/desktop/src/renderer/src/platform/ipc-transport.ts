@@ -1,22 +1,22 @@
-import type { OpenSerialPortOptions, SerialPortInfo, SerialTransport } from '@nanokvm/core';
+import type { OpenSerialPortOptions, SerialPortInfo, SerialTransport } from '@nanokvm/core'
 
 /**
  * 桌面端传输层：通过 preload 暴露的 IPC 契约调用主进程的 node-serialport，
  * 渲染层只收发原始字节。
  */
 export class IpcSerialTransport implements SerialTransport {
-  readonly kind = 'ipc' as const;
+  readonly kind = 'ipc' as const
 
   isSupported(): boolean {
-    return true;
+    return true
   }
 
   supportsEnumeration(): boolean {
-    return true;
+    return true
   }
 
   async list(): Promise<SerialPortInfo[]> {
-    return window.api.serial.list();
+    return window.api.serial.list()
   }
 
   async request(): Promise<void> {
@@ -25,25 +25,25 @@ export class IpcSerialTransport implements SerialTransport {
 
   async open(options: OpenSerialPortOptions): Promise<void> {
     if (!options.path) {
-      throw new Error('Serial port path is required on desktop');
+      throw new Error('Serial port path is required on desktop')
     }
 
-    await window.api.serial.open({ path: options.path, baudRate: options.baudRate });
+    await window.api.serial.open({ path: options.path, baudRate: options.baudRate })
   }
 
   async close(): Promise<void> {
-    await window.api.serial.close();
+    await window.api.serial.close()
   }
 
   async read(minSize: number, timeoutMs?: number): Promise<number[]> {
-    return window.api.serial.read(minSize, timeoutMs);
+    return window.api.serial.read(minSize, timeoutMs)
   }
 
   async write(data: number[]): Promise<void> {
-    await window.api.serial.write(data);
+    await window.api.serial.write(data)
   }
 
   onDisconnect(callback: () => void): () => void {
-    return window.api.serial.onDisconnected(callback);
+    return window.api.serial.onDisconnected(callback)
   }
 }

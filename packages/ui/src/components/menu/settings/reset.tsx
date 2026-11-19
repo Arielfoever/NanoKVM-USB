@@ -1,25 +1,25 @@
-import { useState } from 'react';
-import { Button, Modal } from 'antd';
-import { useTranslation } from 'react-i18next';
+import { useState } from 'react'
+import { Button, Modal } from 'antd'
+import { useTranslation } from 'react-i18next'
 
-import * as storage from '@/libs/storage';
+import * as storage from '@/libs/storage'
 
 export const Reset = () => {
-  const { t } = useTranslation();
-  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
+  const { t } = useTranslation()
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false)
 
   function handleReset(): void {
-    setIsConfirmModalOpen(true);
+    setIsConfirmModalOpen(true)
   }
 
   function confirmReset(): void {
-    storage.clearAllSettings();
-    setIsConfirmModalOpen(false);
-    window.location.reload();
+    storage.clearAllSettings()
+    setIsConfirmModalOpen(false)
+    window.location.reload()
   }
 
   function cancelReset(): void {
-    setIsConfirmModalOpen(false);
+    setIsConfirmModalOpen(false)
   }
 
   return (
@@ -54,5 +54,5 @@ export const Reset = () => {
         <p>{t('settings.reset.confirmMessage')}</p>
       </Modal>
     </>
-  );
-};
+  )
+}

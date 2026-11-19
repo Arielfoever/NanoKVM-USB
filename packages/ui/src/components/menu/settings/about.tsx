@@ -1,17 +1,17 @@
-import { useEffect, useState } from 'react';
-import { GithubOutlined, XOutlined } from '@ant-design/icons';
-import { Divider } from 'antd';
-import { BookOpenIcon, MessageSquareIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react'
+import { GithubOutlined, XOutlined } from '@ant-design/icons'
+import { Divider } from 'antd'
+import { BookOpenIcon, MessageSquareIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import icon from '@/assets/icon.png';
-import { getPlatform } from '@/services';
+import icon from '@/assets/icon.png'
+import { getPlatform } from '@/services'
 
 export const About = () => {
-  const { t } = useTranslation();
-  const platform = getPlatform();
+  const { t } = useTranslation()
+  const platform = getPlatform()
 
-  const [version, setVersion] = useState('');
+  const [version, setVersion] = useState('')
 
   const communities = [
     {
@@ -34,14 +34,14 @@ export const About = () => {
       icon: <MessageSquareIcon size={24} />,
       url: 'https://maixhub.com/discussion/nanokvm'
     }
-  ];
+  ]
 
   useEffect(() => {
-    platform.getVersion().then((ver) => setVersion(ver));
-  }, [platform]);
+    platform.getVersion().then((ver) => setVersion(ver))
+  }, [platform])
 
   function open(url: string): void {
-    platform.openExternal(url);
+    platform.openExternal(url)
   }
 
   return (
@@ -74,5 +74,5 @@ export const About = () => {
         ))}
       </div>
     </>
-  );
-};
+  )
+}

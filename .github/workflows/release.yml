@@ -72,16 +72,16 @@ jobs:
 
       - name: Create browser archive
         run: |
-           cd apps/browser/dist
-           zip -r ../nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip .
-           cd ..
+          cd apps/browser/dist
+          zip -r ../nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip .
+          cd ..
 
       - name: Upload browser artifact
         uses: actions/upload-artifact@v4
         with:
-           name: browser-release
-           path: apps/browser/nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip
-           if-no-files-found: error
+          name: browser-release
+          path: apps/browser/nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip
+          if-no-files-found: error
 
   build-desktop:
     name: Build Desktop Apps

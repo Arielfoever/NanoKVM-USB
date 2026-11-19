@@ -10,8 +10,8 @@ const languages = [
   { key: 'ja', name: '日本語' },
   { key: 'pt_br', name: 'Português (Brasil)' },
   { key: 'pl', name: 'Polski' }
-];
+]
 
-languages.sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }));
+languages.sort((a, b) => a.name.localeCompare(b.name, 'en', { sensitivity: 'base' }))
 
-export default languages;
+export default languages

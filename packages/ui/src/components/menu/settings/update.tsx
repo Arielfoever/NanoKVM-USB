@@ -1,62 +1,62 @@
-import { useEffect, useState } from 'react';
-import { LoadingOutlined, RocketOutlined, SmileOutlined } from '@ant-design/icons';
-import { Button, Divider, Progress, Result, Spin } from 'antd';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react'
+import { LoadingOutlined, RocketOutlined, SmileOutlined } from '@ant-design/icons'
+import { Button, Divider, Progress, Result, Spin } from 'antd'
+import { useTranslation } from 'react-i18next'
 
-import { getPlatform } from '@/services';
+import { getPlatform } from '@/services'
 
-type Status = 'loading' | 'latest' | 'outdated' | 'downloading' | 'installing' | 'error';
+type Status = 'loading' | 'latest' | 'outdated' | 'downloading' | 'installing' | 'error'
 
 export const Update = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const platform = getPlatform();
-  const updater = platform.updater;
+  const platform = getPlatform()
+  const updater = platform.updater
 
-  const [status, setStatus] = useState<Status>('loading');
-  const [currentVersion, setCurrentVersion] = useState('');
-  const [latestVersion, setLatestVersion] = useState('');
-  const [progress, setProgress] = useState(0);
+  const [status, setStatus] = useState<Status>('loading')
+  const [currentVersion, setCurrentVersion] = useState('')
+  const [latestVersion, setLatestVersion] = useState('')
+  const [progress, setProgress] = useState(0)
 
   useEffect(() => {
-    if (!updater) return;
+    if (!updater) return
 
-    platform.getVersion().then((version) => setCurrentVersion(version));
-    updater.check();
+    platform.getVersion().then((version) => setCurrentVersion(version))
+    updater.check()
 
     const removeUpdateAvailable = updater.onUpdateAvailable((info) => {
       if (info?.version) {
-        setStatus('outdated');
-        setLatestVersion(info.version);
+        setStatus('outdated')
+        setLatestVersion(info.version)
       }
-    });
-    const removeUpdateNotAvailable = updater.onUpdateNotAvailable(() => setStatus('latest'));
+    })
+    const removeUpdateNotAvailable = updater.onUpdateNotAvailable(() => setStatus('latest'))
     const removeProgress = updater.onProgress((percent) => {
-      setProgress(percent);
+      setProgress(percent)
       if (percent >= 100) {
-        setStatus('installing');
+        setStatus('installing')
       }
-    });
-    const removeDownloaded = updater.onDownloaded(() => setStatus('installing'));
-    const removeError = updater.onError(() => setStatus('error'));
+    })
+    const removeDownloaded = updater.onDownloaded(() => setStatus('installing'))
+    const removeError = updater.onError(() => setStatus('error'))
 
     return () => {
-      removeUpdateAvailable();
-      removeUpdateNotAvailable();
-      removeProgress();
-      removeDownloaded();
-      removeError();
-    };
-  }, [platform, updater]);
+      removeUpdateAvailable()
+      removeUpdateNotAvailable()
+      removeProgress()
+      removeDownloaded()
+      removeError()
+    }
+  }, [platform, updater])
 
   if (!updater) {
-    return null;
+    return null
   }
 
   function update(): void {
-    updater?.download();
-    setProgress(0);
-    setStatus('downloading');
+    updater?.download()
+    setProgress(0)
+    setStatus('downloading')
   }
 
   return (
@@ -115,5 +115,5 @@ export const Update = () => {
 
       {status === 'error' && <Result subTitle={t('settings.update.failed')} />}
     </>
-  );
-};
+  )
+}

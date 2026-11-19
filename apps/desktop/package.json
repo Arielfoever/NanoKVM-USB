@@ -6,8 +6,6 @@
   "author": "sipeed.com",
   "homepage": "https://github.com/sipeed/NanoKVM-USB",
   "scripts": {
-    "format": "prettier --write .",
-    "lint": "eslint --cache .",
     "typecheck:node": "tsc --noEmit -p tsconfig.node.json --composite false",
     "typecheck:web": "tsc --noEmit -p tsconfig.web.json --composite false",
     "typecheck": "pnpm run typecheck:node && pnpm run typecheck:web",
@@ -30,8 +28,6 @@
   },
   "devDependencies": {
     "@ant-design/cssinjs": "~2.1.2",
-    "@electron-toolkit/eslint-config-prettier": "^3.0.0",
-    "@electron-toolkit/eslint-config-ts": "^3.0.0",
     "@electron-toolkit/tsconfig": "2.0.0",
     "@electron/notarize": "^3.1.2",
     "@nanokvm/core": "workspace:*",
@@ -42,10 +38,6 @@
     "electron": "45.4.1",
     "electron-builder": "26.18.0",
     "electron-vite": "6.0.0",
-    "eslint": "^9.39.2",
-    "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.26",
     "react": "19.3.1",
     "react-dom": "19.3.1"
   }

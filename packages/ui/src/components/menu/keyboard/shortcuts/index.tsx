@@ -1,21 +1,21 @@
-import { useEffect, useState } from 'react';
-import { Divider, Popover } from 'antd';
-import { CommandIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react'
+import { Divider, Popover } from 'antd'
+import { CommandIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { ScrollArea } from '@/components/ui/scroll-area';
-import * as storage from '@/libs/storage';
+import { ScrollArea } from '@/components/ui/scroll-area'
+import * as storage from '@/libs/storage'
 
-import { Recorder } from './recorder.tsx';
-import { Shortcut } from './shortcut.tsx';
-import type { Shortcut as ShortcutInterface } from './types.ts';
+import { Recorder } from './recorder.tsx'
+import { Shortcut } from './shortcut.tsx'
+import type { Shortcut as ShortcutInterface } from './types.ts'
 
 export const Shortcuts = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isRecording, setIsRecording] = useState(false);
-  const [customShortcuts, setCustomShortcuts] = useState<ShortcutInterface[]>([]);
+  const [isOpen, setIsOpen] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [customShortcuts, setCustomShortcuts] = useState<ShortcutInterface[]>([])
 
   const defaultShortcuts: ShortcutInterface[] = [
     {
@@ -31,35 +31,35 @@ export const Shortcuts = () => {
         { code: 'Delete', label: '⌫' }
       ]
     }
-  ];
+  ]
 
   useEffect(() => {
-    const shortcuts = storage.getShortcuts();
-    if (!shortcuts) return;
-    setCustomShortcuts(JSON.parse(shortcuts));
-  }, []);
+    const shortcuts = storage.getShortcuts()
+    if (!shortcuts) return
+    setCustomShortcuts(JSON.parse(shortcuts))
+  }, [])
 
   function addShortcut(shortcut: ShortcutInterface): void {
-    const shortcuts = [...customShortcuts, shortcut];
-    setCustomShortcuts(shortcuts);
-    storage.setShortcuts(JSON.stringify(shortcuts));
+    const shortcuts = [...customShortcuts, shortcut]
+    setCustomShortcuts(shortcuts)
+    storage.setShortcuts(JSON.stringify(shortcuts))
   }
 
   function delShortcut(index: number): void {
-    const shortcuts = customShortcuts.filter((_, i) => i !== index);
-    setCustomShortcuts(shortcuts);
-    storage.setShortcuts(JSON.stringify(shortcuts));
+    const shortcuts = customShortcuts.filter((_, i) => i !== index)
+    setCustomShortcuts(shortcuts)
+    storage.setShortcuts(JSON.stringify(shortcuts))
   }
 
   function handleOpenChange(open: boolean): void {
     if (open) {
-      setIsOpen(true);
-      return;
+      setIsOpen(true)
+      return
     }
     if (isRecording) {
-      return;
+      return
     }
-    setIsOpen(false);
+    setIsOpen(false)
   }
 
   const content = (
@@ -89,7 +89,7 @@ export const Shortcuts = () => {
         setIsRecording={setIsRecording}
       />
     </ScrollArea>
-  );
+  )
 
   return (
     <Popover
@@ -106,5 +106,5 @@ export const Shortcuts = () => {
         <span>{t('keyboard.shortcut.title')}</span>
       </div>
     </Popover>
-  );
-};
+  )
+}

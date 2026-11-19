@@ -116,7 +116,8 @@ const en = {
         warningDescription: 'This action cannot be undone. All your custom settings will be lost.',
         button: 'Reset All Settings',
         confirmTitle: 'Confirm Reset',
-        confirmMessage: 'Are you sure you want to reset all settings? This action cannot be undone.',
+        confirmMessage:
+          'Are you sure you want to reset all settings? This action cannot be undone.',
         confirm: 'Reset',
         cancel: 'Cancel'
       },
@@ -130,6 +131,6 @@ const en = {
       failed: 'Failed to connect serial. Please try again'
     }
   }
-};
+}
 
-export default en;
+export default en

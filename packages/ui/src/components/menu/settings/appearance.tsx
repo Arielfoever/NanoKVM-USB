@@ -1,37 +1,37 @@
-import { useEffect, useState } from 'react';
-import { Divider, Select, Switch } from 'antd';
-import { LanguagesIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react'
+import { Divider, Select, Switch } from 'antd'
+import { LanguagesIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import languages from '@/i18n/languages';
-import { setLanguage, getIsMenuOpen, setIsMenuOpen } from '@/libs/storage';
+import languages from '@/i18n/languages'
+import { getIsMenuOpen, setIsMenuOpen, setLanguage } from '@/libs/storage'
 
 export const Appearance = () => {
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation()
 
-  const [isMenuOpen, setMenuOpen] = useState(false);
+  const [isMenuOpen, setMenuOpen] = useState(false)
 
   const options = languages.map((language) => ({
     value: language.key,
     label: language.name
-  }));
+  }))
 
   useEffect(() => {
-    setMenuOpen(getIsMenuOpen());
-  }, []);
+    setMenuOpen(getIsMenuOpen())
+  }, [])
 
   function changeLanguage(value: string): void {
-    if (i18n.language === value) return;
+    if (i18n.language === value) return
 
-    i18n.changeLanguage(value);
-    setLanguage(value);
+    i18n.changeLanguage(value)
+    setLanguage(value)
   }
 
   function toggleMenu(): void {
-    const isOpen = !isMenuOpen;
+    const isOpen = !isMenuOpen
 
-    setMenuOpen(isOpen);
-    setIsMenuOpen(isOpen);
+    setMenuOpen(isOpen)
+    setIsMenuOpen(isOpen)
   }
 
   return (
@@ -64,5 +64,5 @@ export const Appearance = () => {
         <Switch value={isMenuOpen} onChange={toggleMenu} />
       </div>
     </>
-  );
-};
+  )
+}

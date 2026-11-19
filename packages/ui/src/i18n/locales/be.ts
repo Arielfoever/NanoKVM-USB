@@ -110,6 +110,6 @@ const be = {
       failed: 'Verbinding met seriële poort mislukt. Probeer opnieuw'
     }
   }
-};
+}
 
-export default be;
+export default be

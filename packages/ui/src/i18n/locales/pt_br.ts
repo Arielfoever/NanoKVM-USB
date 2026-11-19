@@ -86,10 +86,11 @@ const pt_br = {
       download: 'Download'
     },
     serial: {
-      notSupported: 'Serial não suportado. Use o navegador Chrome para habilitar o mouse e teclado.',
+      notSupported:
+        'Serial não suportado. Use o navegador Chrome para habilitar o mouse e teclado.',
       failed: 'Falha ao se conectar na porta serial. Tente novamente'
     }
   }
-};
+}
 
-export default pt_br;
+export default pt_br

@@ -1,52 +1,52 @@
-import { useEffect, useState } from 'react';
-import { Button, Modal } from 'antd';
-import { useSetAtom } from 'jotai';
-import { VolumeOffIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react'
+import { Button, Modal } from 'antd'
+import { useSetAtom } from 'jotai'
+import { VolumeOffIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { videoDeviceIdAtom, videoStateAtom } from '@/jotai/device.ts';
-import { camera } from '@/libs/media/camera.ts';
-import { checkPermission, requestMicrophonePermission } from '@/libs/media/permission.ts';
+import { videoDeviceIdAtom, videoStateAtom } from '@/jotai/device.ts'
+import { camera } from '@/libs/media/camera.ts'
+import { checkPermission, requestMicrophonePermission } from '@/libs/media/permission.ts'
 
 export const Audio = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const setVideoState = useSetAtom(videoStateAtom);
-  const setVideoDeviceId = useSetAtom(videoDeviceIdAtom);
+  const setVideoState = useSetAtom(videoStateAtom)
+  const setVideoDeviceId = useSetAtom(videoDeviceIdAtom)
 
-  const [isGranted, setIsGranted] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isGranted, setIsGranted] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   useEffect(() => {
     checkPermission('microphone').then((granted) => {
-      setIsGranted(granted);
-    });
-  }, []);
+      setIsGranted(granted)
+    })
+  }, [])
 
   async function requestPermission() {
     try {
-      const granted = await requestMicrophonePermission();
+      const granted = await requestMicrophonePermission()
       if (!granted) {
-        setIsModalOpen(true);
-        return;
+        setIsModalOpen(true)
+        return
       }
 
-      setVideoDeviceId('');
-      setVideoState('disconnected');
-      setIsGranted(granted);
+      setVideoDeviceId('')
+      setVideoState('disconnected')
+      setIsGranted(granted)
 
-      camera.close();
+      camera.close()
     } catch (err: any) {
-      console.log('failed to request media permissions: ', err);
+      console.log('failed to request media permissions: ', err)
     }
   }
 
   function closeModal() {
-    setIsModalOpen(false);
+    setIsModalOpen(false)
   }
 
   if (isGranted) {
-    return null;
+    return null
   }
 
   return (
@@ -59,7 +59,7 @@ export const Audio = () => {
       </div>
 
       <Modal open={isModalOpen} title={t('audio.tip')} footer={null} onCancel={closeModal}>
-        <div className="whitespace-pre-line py-5">{t('audio.permission')}</div>
+        <div className="py-5 whitespace-pre-line">{t('audio.permission')}</div>
         <a
           href="https://wiki.sipeed.com/hardware/en/kvm/NanoKVM_USB/quick_start.html#Authorization"
           target="_blank"
@@ -74,5 +74,5 @@ export const Audio = () => {
         </div>
       </Modal>
     </>
-  );
-};
+  )
+}

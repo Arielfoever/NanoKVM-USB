@@ -1,44 +1,44 @@
-import { useEffect, useState } from 'react';
-import { Badge, Modal } from 'antd';
-import clsx from 'clsx';
+import { useEffect, useState } from 'react'
+import { Badge, Modal } from 'antd'
+import clsx from 'clsx'
 import {
   BadgeInfoIcon,
   CircleArrowUpIcon,
   PaletteIcon,
   RotateCcwIcon,
   SettingsIcon
-} from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+} from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import * as storage from '@/libs/storage';
-import { getPlatform } from '@/services';
+import * as storage from '@/libs/storage'
+import { getPlatform } from '@/services'
 
-import { About } from './about';
-import { Appearance } from './appearance';
-import { Reset } from './reset';
-import { Update } from './update';
+import { About } from './about'
+import { Appearance } from './appearance'
+import { Reset } from './reset'
+import { Update } from './update'
 
 export const Settings = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const updater = getPlatform().updater;
+  const updater = getPlatform().updater
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [currentTab, setCurrentTab] = useState('appearance');
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [currentTab, setCurrentTab] = useState('appearance')
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
 
   useEffect(() => {
-    if (!updater) return;
+    if (!updater) return
 
-    const skip = storage.getSkipUpdate();
-    if (skip) return;
+    const skip = storage.getSkipUpdate()
+    if (skip) return
 
     updater.check().then((info) => {
       if (info?.version) {
-        setIsUpdateAvailable(true);
+        setIsUpdateAvailable(true)
       }
-    });
-  }, [updater]);
+    })
+  }, [updater])
 
   const tabs = [
     { id: 'appearance', icon: <PaletteIcon size={16} />, component: <Appearance /> },
@@ -47,20 +47,20 @@ export const Settings = () => {
       : []),
     { id: 'reset', icon: <RotateCcwIcon size={16} />, component: <Reset /> },
     { id: 'about', icon: <BadgeInfoIcon size={16} />, component: <About /> }
-  ];
+  ]
 
   function changeTab(tab: string): void {
-    setCurrentTab(tab);
+    setCurrentTab(tab)
 
     if (isUpdateAvailable && tab === 'update') {
-      setIsUpdateAvailable(false);
-      storage.setSkipUpdate(true);
+      setIsUpdateAvailable(false)
+      storage.setSkipUpdate(true)
     }
   }
 
   function closeModal(): void {
-    setIsModalOpen(false);
-    setCurrentTab('appearance');
+    setIsModalOpen(false)
+    setCurrentTab('appearance')
   }
 
   return (
@@ -119,5 +119,5 @@ export const Settings = () => {
         </div>
       </Modal>
     </>
-  );
-};
+  )
+}

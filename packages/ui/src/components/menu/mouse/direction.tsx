@@ -1,28 +1,28 @@
-import { ReactElement } from 'react';
-import { Popover } from 'antd';
-import clsx from 'clsx';
-import { useAtom } from 'jotai';
-import { ArrowDownUpIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { ReactElement } from 'react'
+import { Popover } from 'antd'
+import clsx from 'clsx'
+import { useAtom } from 'jotai'
+import { ArrowDownUpIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { scrollDirectionAtom } from '@/jotai/mouse.ts';
-import * as storage from '@/libs/storage';
+import { scrollDirectionAtom } from '@/jotai/mouse.ts'
+import * as storage from '@/libs/storage'
 
 export const Direction = (): ReactElement => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const [scrollDirection, setScrollDirection] = useAtom(scrollDirectionAtom);
+  const [scrollDirection, setScrollDirection] = useAtom(scrollDirectionAtom)
 
   const directions = [
     { name: t('mouse.scrollUp'), value: '-1' },
     { name: t('mouse.scrollDown'), value: '1' }
-  ];
+  ]
 
   function update(direction: string): void {
-    const value = Number(direction);
+    const value = Number(direction)
 
-    setScrollDirection(value);
-    storage.setMouseScrollDirection(value);
+    setScrollDirection(value)
+    storage.setMouseScrollDirection(value)
   }
 
   const content = (
@@ -31,7 +31,7 @@ export const Direction = (): ReactElement => {
         <div
           key={direction.value}
           className={clsx(
-            'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pl-2 pr-5 hover:bg-neutral-700/50',
+            'my-1 flex cursor-pointer items-center space-x-1 rounded py-1 pr-5 pl-2 hover:bg-neutral-700/50',
             direction.value === scrollDirection.toString() ? 'text-blue-500' : 'text-neutral-300'
           )}
           onClick={() => update(direction.value)}
@@ -40,7 +40,7 @@ export const Direction = (): ReactElement => {
         </div>
       ))}
     </>
-  );
+  )
 
   return (
     <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
@@ -49,5 +49,5 @@ export const Direction = (): ReactElement => {
         <span>{t('mouse.direction')}</span>
       </div>
     </Popover>
-  );
-};
+  )
+}

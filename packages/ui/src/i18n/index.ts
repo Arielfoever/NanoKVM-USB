@@ -1,42 +1,42 @@
-import i18n from 'i18next';
-import type { Resource } from 'i18next';
-import { initReactI18next } from 'react-i18next';
+import i18n from 'i18next'
+import type { Resource } from 'i18next'
+import { initReactI18next } from 'react-i18next'
 
-import { getLanguage } from '../libs/storage';
+import { getLanguage } from '../libs/storage'
 
 function getResources(): Resource {
-  const resources: Resource = {};
+  const resources: Resource = {}
 
-  const modules: Record<string, Resource> = import.meta.glob('./locales/*.ts', { eager: true });
+  const modules: Record<string, Resource> = import.meta.glob('./locales/*.ts', { eager: true })
 
   for (const path in modules) {
-    const moduleName = path.split('/').pop()?.replace('.ts', '');
+    const moduleName = path.split('/').pop()?.replace('.ts', '')
     if (moduleName) {
-      resources[moduleName] = modules[path].default;
+      resources[moduleName] = modules[path].default
     }
   }
 
-  return resources;
+  return resources
 }
 
 function getCurrentLanguage(): string {
-  const languages = Object.keys(resources);
+  const languages = Object.keys(resources)
 
-  const cookieLng = getLanguage();
+  const cookieLng = getLanguage()
   if (cookieLng && languages.includes(cookieLng)) {
-    return cookieLng;
+    return cookieLng
   }
 
-  const navigatorLng = navigator.language.split('-')[0];
+  const navigatorLng = navigator.language.split('-')[0]
   if (languages.includes(navigatorLng)) {
-    return navigatorLng;
+    return navigatorLng
   }
 
-  return 'en';
+  return 'en'
 }
 
-const resources = getResources();
-const lng = getCurrentLanguage();
+const resources = getResources()
+const lng = getCurrentLanguage()
 
 i18n
   .use(initReactI18next)
@@ -48,6 +48,6 @@ i18n
       escapeValue: false
     }
   })
-  .then();
+  .then()
 
-export default i18n;
+export default i18n

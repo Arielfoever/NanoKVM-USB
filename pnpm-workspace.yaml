@@ -1,6 +1,7 @@
 packages:
   - 'packages/*'
   - 'apps/*'
+  - 'tools/*'
 
 # pnpm 10+ 起，overrides 不再从 package.json 的 pnpm 字段读取
 overrides:

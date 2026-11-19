@@ -1,10 +1,10 @@
-import { Popover } from 'antd';
-import { MonitorIcon } from 'lucide-react';
+import { Popover } from 'antd'
+import { MonitorIcon } from 'lucide-react'
 
-import { Device } from './device.tsx';
-import { Resolution } from './resolution.tsx';
-import { Rotation } from './rotation.tsx';
-import { Scale } from './scale.tsx';
+import { Device } from './device.tsx'
+import { Resolution } from './resolution.tsx'
+import { Rotation } from './rotation.tsx'
+import { Scale } from './scale.tsx'
 
 export const Video = () => {
   const content = (
@@ -14,7 +14,7 @@ export const Video = () => {
       <Scale />
       <Device />
     </div>
-  );
+  )
 
   return (
     <Popover content={content} placement="bottomLeft" trigger="click" arrow={false}>
@@ -22,5 +22,5 @@ export const Video = () => {
         <MonitorIcon size={18} />
       </div>
     </Popover>
-  );
-};
+  )
+}

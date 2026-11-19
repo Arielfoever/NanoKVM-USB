@@ -1,25 +1,25 @@
-import { useEffect, useState } from 'react';
-import { Button, Divider, InputNumber, Modal, Popover } from 'antd';
-import clsx from 'clsx';
-import { useAtom, useSetAtom } from 'jotai';
-import { MonitorIcon, Trash2Icon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react'
+import { Button, Divider, InputNumber, Modal, Popover } from 'antd'
+import clsx from 'clsx'
+import { useAtom, useSetAtom } from 'jotai'
+import { MonitorIcon, Trash2Icon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { resolutionAtom } from '@/jotai/device.ts';
-import { isKeyboardEnableAtom } from '@/jotai/keyboard.ts';
-import { camera } from '@/libs/media/camera.ts';
-import * as storage from '@/libs/storage';
-import type { Resolution as VideoResolution } from '@/types';
+import { resolutionAtom } from '@/jotai/device.ts'
+import { isKeyboardEnableAtom } from '@/jotai/keyboard.ts'
+import { camera } from '@/libs/media/camera.ts'
+import * as storage from '@/libs/storage'
+import type { Resolution as VideoResolution } from '@/types'
 
 export const Resolution = () => {
-  const { t } = useTranslation();
-  const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom);
-  const [resolution, setResolution] = useAtom(resolutionAtom);
+  const { t } = useTranslation()
+  const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom)
+  const [resolution, setResolution] = useAtom(resolutionAtom)
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [width, setWidth] = useState(0);
-  const [height, setHeight] = useState(0);
-  const [customResolutions, setCustomResolutions] = useState<VideoResolution[]>([]);
+  const [isOpen, setIsOpen] = useState(false)
+  const [width, setWidth] = useState(0)
+  const [height, setHeight] = useState(0)
+  const [customResolutions, setCustomResolutions] = useState<VideoResolution[]>([])
 
   const resolutions: VideoResolution[] = [
     { width: 3840, height: 2160 },
@@ -28,71 +28,71 @@ export const Resolution = () => {
     { width: 1280, height: 720 },
     { width: 800, height: 600 },
     { width: 640, height: 480 }
-  ];
+  ]
 
   useEffect(() => {
-    const resolutions = storage.getCustomResolutions();
+    const resolutions = storage.getCustomResolutions()
     if (resolutions) {
-      setCustomResolutions(resolutions);
+      setCustomResolutions(resolutions)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
-    setIsKeyboardEnable(!isOpen);
-  }, [isOpen]);
+    setIsKeyboardEnable(!isOpen)
+  }, [isOpen])
 
   function showModal() {
-    setWidth(0);
-    setHeight(0);
-    setIsOpen(true);
+    setWidth(0)
+    setHeight(0)
+    setIsOpen(true)
   }
 
   function submit() {
     if (!width || !height || (width === resolution.width && height === resolution.height)) {
-      setIsOpen(false);
-      return;
+      setIsOpen(false)
+      return
     }
 
-    let isExist = resolutions.some((r) => r.width === width && r.height === height);
-    if (isExist) return;
-    isExist = customResolutions.some((r) => r.width === width && r.height === height);
-    if (isExist) return;
+    let isExist = resolutions.some((r) => r.width === width && r.height === height)
+    if (isExist) return
+    isExist = customResolutions.some((r) => r.width === width && r.height === height)
+    if (isExist) return
 
-    setCustomResolutions([...customResolutions, { width, height }]);
-    storage.setCustomResolution(width, height);
+    setCustomResolutions([...customResolutions, { width, height }])
+    storage.setCustomResolution(width, height)
 
-    updateResolution(width, height);
+    updateResolution(width, height)
   }
 
   async function updateResolution(w: number, h: number) {
     try {
-      await camera.updateResolution(w, h);
+      await camera.updateResolution(w, h)
     } catch (err) {
-      console.log(err);
-      return;
+      console.log(err)
+      return
     }
 
-    const video = document.getElementById('video') as HTMLVideoElement;
-    if (!video) return;
-    video.srcObject = camera.getStream();
+    const video = document.getElementById('video') as HTMLVideoElement
+    if (!video) return
+    video.srcObject = camera.getStream()
 
-    setResolution({ width: w, height: h });
-    storage.setVideoResolution(w, h);
-    setIsOpen(false);
+    setResolution({ width: w, height: h })
+    storage.setVideoResolution(w, h)
+    setIsOpen(false)
   }
 
   function removeCustomResolution(e: any) {
-    e.stopPropagation();
+    e.stopPropagation()
 
     const isExist = customResolutions.some(
       (r) => r.width === resolution.width && r.height === resolution.height
-    );
+    )
     if (isExist) {
-      updateResolution(1920, 1080);
+      updateResolution(1920, 1080)
     }
 
-    setCustomResolutions([]);
-    storage.removeCustomResolutions();
+    setCustomResolutions([])
+    storage.removeCustomResolutions()
   }
 
   const content = (
@@ -102,7 +102,7 @@ export const Resolution = () => {
         <div
           key={res.width}
           className={clsx(
-            'flex cursor-pointer select-none items-center space-x-1 rounded px-4 py-1.5 hover:bg-neutral-700/60',
+            'flex cursor-pointer items-center space-x-1 rounded px-4 py-1.5 select-none hover:bg-neutral-700/60',
             resolution.width === res.width && resolution.height === res.height
               ? 'text-blue-500'
               : 'text-white'
@@ -119,7 +119,7 @@ export const Resolution = () => {
 
       {/* custom resolution */}
       <div
-        className="flex cursor-pointer select-none items-center justify-between space-x-3 rounded px-4 py-1.5 text-sm hover:bg-neutral-700/60"
+        className="flex cursor-pointer items-center justify-between space-x-3 rounded px-4 py-1.5 text-sm select-none hover:bg-neutral-700/60"
         onClick={showModal}
       >
         <span>{t('video.customResolution')}</span>
@@ -134,7 +134,7 @@ export const Resolution = () => {
         <div
           key={res.width}
           className={clsx(
-            'flex cursor-pointer select-none items-center space-x-1 rounded px-4 py-1.5 hover:bg-neutral-700/60',
+            'flex cursor-pointer items-center space-x-1 rounded px-4 py-1.5 select-none hover:bg-neutral-700/60',
             resolution.width === res.width && resolution.height === res.height
               ? 'text-blue-500'
               : 'text-white'
@@ -147,14 +147,14 @@ export const Resolution = () => {
         </div>
       ))}
     </>
-  );
+  )
 
   return (
     <>
       <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
         <div className="flex h-[32px] cursor-pointer items-center space-x-2 rounded px-3 text-neutral-300 hover:bg-neutral-700/50">
           <MonitorIcon size={16} />
-          <span className="select-none text-sm">{t('video.resolution')}</span>
+          <span className="text-sm select-none">{t('video.resolution')}</span>
         </div>
       </Popover>
 
@@ -197,5 +197,5 @@ export const Resolution = () => {
         </div>
       </Modal>
     </>
-  );
-};
+  )
+}

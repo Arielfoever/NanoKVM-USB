@@ -1,6 +1,7 @@
-import type { MediaKind } from '@nanokvm/core'
 import { app, ipcMain, shell, systemPreferences } from 'electron'
 import type { IpcMainEvent, IpcMainInvokeEvent } from 'electron'
+
+import type { MediaKind } from '@nanokvm/core'
 
 import { IpcEvents } from '../../common/ipc-events'
 
@@ -33,10 +34,7 @@ function checkMediaPermission(_: IpcMainInvokeEvent, kind: MediaKind): boolean {
   }
 }
 
-async function requestMediaPermission(
-  _: IpcMainInvokeEvent,
-  kind: MediaKind
-): Promise<boolean> {
+async function requestMediaPermission(_: IpcMainInvokeEvent, kind: MediaKind): Promise<boolean> {
   try {
     const status = systemPreferences.getMediaAccessStatus(kind)
     if (status === 'granted') {

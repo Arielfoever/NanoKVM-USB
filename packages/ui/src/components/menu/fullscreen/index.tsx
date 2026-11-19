@@ -1,35 +1,35 @@
-import { useEffect, useState } from 'react';
-import { MaximizeIcon, MinimizeIcon } from 'lucide-react';
+import { useEffect, useState } from 'react'
+import { MaximizeIcon, MinimizeIcon } from 'lucide-react'
 
 export const Fullscreen = () => {
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false)
 
   useEffect(() => {
     function onFullscreenChange() {
-      setIsFullscreen(!!document.fullscreenElement);
+      setIsFullscreen(!!document.fullscreenElement)
     }
 
-    onFullscreenChange();
+    onFullscreenChange()
 
-    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('fullscreenchange', onFullscreenChange)
 
     return () => {
-      document.removeEventListener('fullscreenchange', onFullscreenChange);
-    };
-  }, []);
+      document.removeEventListener('fullscreenchange', onFullscreenChange)
+    }
+  }, [])
 
   function handleFullscreen() {
     if (!document.fullscreenElement) {
-      const element = document.documentElement;
-      element.requestFullscreen().then();
+      const element = document.documentElement
+      element.requestFullscreen().then()
 
       // @ts-expect-error - https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock
-      navigator.keyboard?.lock();
+      navigator.keyboard?.lock()
     } else {
-      document.exitFullscreen().then();
+      document.exitFullscreen().then()
 
       // @ts-expect-error - https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/unlock
-      navigator.keyboard?.unlock();
+      navigator.keyboard?.unlock()
     }
   }
 
@@ -40,5 +40,5 @@ export const Fullscreen = () => {
     >
       {isFullscreen ? <MinimizeIcon size={18} /> : <MaximizeIcon size={18} />}
     </div>
-  );
-};
+  )
+}

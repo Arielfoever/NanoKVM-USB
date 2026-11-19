@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import { Popover } from 'antd';
-import { KeyboardIcon } from 'lucide-react';
+import { useState } from 'react'
+import { Popover } from 'antd'
+import { KeyboardIcon } from 'lucide-react'
 
-import { Paste } from './paste.tsx';
-import { Shortcuts } from './shortcuts';
-import { VirtualKeyboard } from './virtual-keyboard.tsx';
+import { Paste } from './paste.tsx'
+import { Shortcuts } from './shortcuts'
+import { VirtualKeyboard } from './virtual-keyboard.tsx'
 
 export const Keyboard = () => {
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false)
 
   const content = (
     <div className="flex flex-col space-y-0.5">
@@ -15,7 +15,7 @@ export const Keyboard = () => {
       <VirtualKeyboard />
       <Shortcuts />
     </div>
-  );
+  )
 
   return (
     <Popover
@@ -30,5 +30,5 @@ export const Keyboard = () => {
         <KeyboardIcon size={18} />
       </div>
     </Popover>
-  );
-};
+  )
+}

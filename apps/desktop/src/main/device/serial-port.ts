@@ -87,7 +87,6 @@ export class SerialPort {
   private waitForData(timeoutMs: number): Promise<void> {
     return new Promise<void>((resolve) => {
       let settled = false
-      let timer: ReturnType<typeof setTimeout>
 
       const finish = (): void => {
         if (settled) return
@@ -96,7 +95,7 @@ export class SerialPort {
         resolve()
       }
 
-      timer = setTimeout(() => {
+      const timer = setTimeout(() => {
         this.waiters = this.waiters.filter((waiter) => waiter !== finish)
         finish()
       }, timeoutMs)

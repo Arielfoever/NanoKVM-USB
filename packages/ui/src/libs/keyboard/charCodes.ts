@@ -100,7 +100,7 @@ export const CharCodes: Record<number, number> = {
   124: 49, // |
   125: 48, // }
   126: 53 // ~
-};
+}
 
 export const ShiftChars: Record<number, boolean> = {
   33: true, // !
@@ -124,4 +124,4 @@ export const ShiftChars: Record<number, boolean> = {
   60: true, // <
   62: true, // >
   63: true // ?
-};
+}

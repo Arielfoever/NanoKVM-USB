@@ -64,6 +64,12 @@ packages/core     ← 协议编解码、Device 门面、接口定义（不依赖
 - 语言文件：`packages/ui/src/i18n/locales/*.ts`，新增 key 时至少补 `en.ts`（其余语言缺 key 时自动回退英文）。
 - localStorage key 统一以 `nanokvm-usb-` 前缀；桌面端历史 key `nanokvm-usb-keyboard-shortcuts`（复数）在读取时兼容，写入统一为单数形式。
 
+## 代码检查与格式化
+
+- **ESLint 10 + typescript-eslint**：配置在根 `eslint.config.mjs`，工具链独立安装在 `tools/lint`（因为 typescript-eslint 目前只支持 TypeScript < 6.1，而构建链已用 TypeScript 7 原生编译器；`tools/lint` 自带 TypeScript 5.9 供 parser 使用）。
+- **Prettier**：根 `.prettierrc.yaml`（`semi: false`、单引号、import 排序、Tailwind v4 类名排序），全仓统一，不再保留各 app 的独立配置。
+- 提交前：`pnpm lint && pnpm format:check && pnpm typecheck`。
+
 ## 验证清单
 
 仓库目前没有自动化 UI 测试，重构/升级后至少运行：

@@ -1,20 +1,20 @@
-import { Popover } from 'antd';
-import clsx from 'clsx';
-import { useAtom } from 'jotai';
-import { EyeOffIcon, HandIcon, MousePointerIcon, PlusIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { Popover } from 'antd'
+import clsx from 'clsx'
+import { useAtom } from 'jotai'
+import { EyeOffIcon, HandIcon, MousePointerIcon, PlusIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { mouseStyleAtom } from '@/jotai/mouse.ts';
-import * as storage from '@/libs/storage';
+import { mouseStyleAtom } from '@/jotai/mouse.ts'
+import * as storage from '@/libs/storage'
 
 export const Style = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const [mouseStyle, setMouseStyle] = useAtom(mouseStyleAtom);
+  const [mouseStyle, setMouseStyle] = useAtom(mouseStyleAtom)
 
   function updateStyle(style: string) {
-    setMouseStyle(style);
-    storage.setMouseStyle(style);
+    setMouseStyle(style)
+    storage.setMouseStyle(style)
   }
 
   const mouseStyles = [
@@ -26,7 +26,7 @@ export const Style = () => {
     { name: t('mouse.cursor.grab'), icon: <HandIcon size={14} />, value: 'cursor-grab' },
     { name: t('mouse.cursor.cell'), icon: <PlusIcon size={14} />, value: 'cursor-cell' },
     { name: t('mouse.cursor.hide'), icon: <EyeOffIcon size={14} />, value: 'cursor-none' }
-  ];
+  ]
 
   const content = (
     <>
@@ -34,7 +34,7 @@ export const Style = () => {
         <div
           key={style.value}
           className={clsx(
-            'flex cursor-pointer select-none items-center space-x-1 rounded py-1 pl-3 pr-5 hover:bg-neutral-700/50',
+            'flex cursor-pointer items-center space-x-1 rounded py-1 pr-5 pl-3 select-none hover:bg-neutral-700/50',
             style.value === mouseStyle ? 'text-blue-500' : 'text-neutral-300'
           )}
           onClick={() => updateStyle(style.value)}
@@ -44,14 +44,14 @@ export const Style = () => {
         </div>
       ))}
     </>
-  );
+  )
 
   return (
     <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
       <div className="flex h-[32px] cursor-pointer items-center space-x-2 rounded px-3 text-neutral-300 hover:bg-neutral-700/50">
         <MousePointerIcon size={16} />
-        <span className="select-none text-sm">{t('mouse.cursor.title')}</span>
+        <span className="text-sm select-none">{t('mouse.cursor.title')}</span>
       </div>
     </Popover>
-  );
-};
+  )
+}

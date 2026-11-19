@@ -1,29 +1,29 @@
-import { ReactElement } from 'react';
-import { Popover } from 'antd';
-import clsx from 'clsx';
-import { useAtom } from 'jotai';
-import { RatioIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { ReactElement } from 'react'
+import { Popover } from 'antd'
+import clsx from 'clsx'
+import { useAtom } from 'jotai'
+import { RatioIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { videoRotationAtom } from '@/jotai/device.ts';
-import * as storage from '@/libs/storage';
-import { Rotation as VideoRotation } from '@/types.ts';
+import { videoRotationAtom } from '@/jotai/device.ts'
+import * as storage from '@/libs/storage'
+import { Rotation as VideoRotation } from '@/types.ts'
 
 const RotationList: { label: string; value: VideoRotation }[] = [
   { label: '0°', value: 0 },
   { label: '90°', value: 90 },
   { label: '180°', value: 180 },
   { label: '270°', value: 270 }
-];
+]
 
 export const Rotation = (): ReactElement => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const [videoRotation, setVideoRotation] = useAtom(videoRotationAtom);
+  const [videoRotation, setVideoRotation] = useAtom(videoRotationAtom)
 
   function updateRotation(rotation: VideoRotation): void {
-    setVideoRotation(rotation);
-    storage.setVideoRotation(rotation);
+    setVideoRotation(rotation)
+    storage.setVideoRotation(rotation)
   }
 
   const content = (
@@ -32,7 +32,7 @@ export const Rotation = (): ReactElement => {
         <div
           key={item.value}
           className={clsx(
-            'flex cursor-pointer select-none items-center space-x-0.5 rounded px-5 py-1.5 hover:bg-neutral-700/60',
+            'flex cursor-pointer items-center space-x-0.5 rounded px-5 py-1.5 select-none hover:bg-neutral-700/60',
             item.value === videoRotation ? 'text-blue-500' : 'text-white'
           )}
           onClick={() => updateRotation(item.value)}
@@ -41,7 +41,7 @@ export const Rotation = (): ReactElement => {
         </div>
       ))}
     </>
-  );
+  )
 
   return (
     <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
@@ -52,5 +52,5 @@ export const Rotation = (): ReactElement => {
         <span>{t('video.rotation')}</span>
       </div>
     </Popover>
-  );
-};
+  )
+}

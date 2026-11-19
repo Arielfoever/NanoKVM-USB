@@ -1,15 +1,15 @@
-import { useSetAtom } from 'jotai';
-import { KeyboardIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useSetAtom } from 'jotai'
+import { KeyboardIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { isKeyboardOpenAtom } from '@/jotai/keyboard.ts';
+import { isKeyboardOpenAtom } from '@/jotai/keyboard.ts'
 
 export const VirtualKeyboard = () => {
-  const { t } = useTranslation();
-  const setIsKeyboardOpen = useSetAtom(isKeyboardOpenAtom);
+  const { t } = useTranslation()
+  const setIsKeyboardOpen = useSetAtom(isKeyboardOpenAtom)
 
   function toggleKeyboard() {
-    setIsKeyboardOpen((isKeyboardOpen) => !isKeyboardOpen);
+    setIsKeyboardOpen((isKeyboardOpen) => !isKeyboardOpen)
   }
 
   return (
@@ -20,5 +20,5 @@ export const VirtualKeyboard = () => {
       <KeyboardIcon size={16} />
       <span>{t('keyboard.virtualKeyboard')}</span>
     </div>
-  );
-};
+  )
+}

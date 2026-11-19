@@ -1,65 +1,65 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Divider } from 'antd';
-import clsx from 'clsx';
-import { useAtomValue, useSetAtom } from 'jotai';
-import { ChevronRightIcon, GripVerticalIcon, XIcon } from 'lucide-react';
-import Draggable from 'react-draggable';
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Divider } from 'antd'
+import clsx from 'clsx'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { ChevronRightIcon, GripVerticalIcon, XIcon } from 'lucide-react'
+import Draggable from 'react-draggable'
 
-import { deviceModalOpenAtom, serialStateAtom } from '@/jotai/device.ts';
-import * as storage from '@/libs/storage';
+import { deviceModalOpenAtom, serialStateAtom } from '@/jotai/device.ts'
+import * as storage from '@/libs/storage'
 
-import { Audio } from './audio';
-import { Fullscreen } from './fullscreen';
-import { Keyboard } from './keyboard';
-import { Mouse } from './mouse';
-import { Recorder } from './recorder';
-import { SerialPort } from './serial-port';
-import { Settings } from './settings';
-import { Video } from './video';
+import { Audio } from './audio'
+import { Fullscreen } from './fullscreen'
+import { Keyboard } from './keyboard'
+import { Mouse } from './mouse'
+import { Recorder } from './recorder'
+import { SerialPort } from './serial-port'
+import { Settings } from './settings'
+import { Video } from './video'
 
 export const Menu = () => {
-  const serialState = useAtomValue(serialStateAtom);
-  const setDeviceModalOpen = useSetAtom(deviceModalOpenAtom);
+  const serialState = useAtomValue(serialStateAtom)
+  const setDeviceModalOpen = useSetAtom(deviceModalOpenAtom)
 
-  const [isMenuOpen, setIsMenuOpen] = useState(true);
-  const [menuBounds, setMenuBounds] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
+  const [isMenuOpen, setIsMenuOpen] = useState(true)
+  const [menuBounds, setMenuBounds] = useState({ left: 0, right: 0, top: 0, bottom: 0 })
 
-  const nodeRef = useRef<HTMLDivElement | null>(null);
+  const nodeRef = useRef<HTMLDivElement | null>(null)
 
   const handleResize = useCallback(() => {
-    if (!nodeRef.current) return;
+    if (!nodeRef.current) return
 
-    const elementRect = nodeRef.current.getBoundingClientRect();
-    const width = (window.innerWidth - elementRect.width) / 2;
+    const elementRect = nodeRef.current.getBoundingClientRect()
+    const width = (window.innerWidth - elementRect.width) / 2
 
     setMenuBounds({
       left: -width,
       top: -10,
       right: width,
       bottom: window.innerHeight - elementRect.height - 10
-    });
-  }, []);
+    })
+  }, [])
 
   useEffect(() => {
-    const isOpen = storage.getIsMenuOpen();
-    setIsMenuOpen(isOpen);
+    const isOpen = storage.getIsMenuOpen()
+    setIsMenuOpen(isOpen)
 
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize)
 
     return () => {
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [handleResize]);
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [handleResize])
 
   useEffect(() => {
-    handleResize();
-  }, [isMenuOpen, serialState, handleResize]);
+    handleResize()
+  }, [isMenuOpen, serialState, handleResize])
 
   function toggleMenu() {
-    const isOpen = !isMenuOpen;
+    const isOpen = !isMenuOpen
 
-    setIsMenuOpen(isOpen);
-    storage.setIsMenuOpen(isOpen);
+    setIsMenuOpen(isOpen)
+    storage.setIsMenuOpen(isOpen)
   }
 
   return (
@@ -71,7 +71,7 @@ export const Menu = () => {
     >
       <div
         ref={nodeRef}
-        className="fixed left-1/2 top-[10px] z-[1000] -translate-x-1/2 transition-opacity duration-300"
+        className="fixed top-[10px] left-1/2 z-[1000] -translate-x-1/2 transition-opacity duration-300"
       >
         {/* Menubar */}
         <div className="sticky top-[10px] flex w-full justify-center">
@@ -82,7 +82,7 @@ export const Menu = () => {
             )}
           >
             <strong>
-              <div className="flex h-[28px] cursor-move select-none items-center justify-center text-neutral-400">
+              <div className="flex h-[28px] cursor-move items-center justify-center text-neutral-400 select-none">
                 <GripVerticalIcon size={18} />
               </div>
             </strong>
@@ -120,7 +120,7 @@ export const Menu = () => {
           {!isMenuOpen && (
             <div className="flex items-center rounded-lg bg-neutral-800/50 p-1">
               <strong>
-                <div className="flex size-[26px] cursor-move select-none items-center justify-center text-neutral-400">
+                <div className="flex size-[26px] cursor-move items-center justify-center text-neutral-400 select-none">
                   <GripVerticalIcon size={18} />
                 </div>
               </strong>
@@ -136,5 +136,5 @@ export const Menu = () => {
         </div>
       </div>
     </Draggable>
-  );
-};
+  )
+}

@@ -1,17 +1,17 @@
-import { ReactElement, useEffect } from 'react';
-import { Popover } from 'antd';
-import clsx from 'clsx';
-import { useAtom } from 'jotai';
-import { PercentIcon, ScalingIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { ReactElement, useEffect } from 'react'
+import { Popover } from 'antd'
+import clsx from 'clsx'
+import { useAtom } from 'jotai'
+import { PercentIcon, ScalingIcon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { videoScaleAtom } from '@/jotai/device.ts';
-import * as storage from '@/libs/storage';
+import { videoScaleAtom } from '@/jotai/device.ts'
+import * as storage from '@/libs/storage'
 
 export const Scale = (): ReactElement => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const [videoScale, setVideoScale] = useAtom(videoScaleAtom);
+  const [videoScale, setVideoScale] = useAtom(videoScaleAtom)
 
   const ScaleList = [
     { label: t('video.auto'), value: 0 },
@@ -20,18 +20,18 @@ export const Scale = (): ReactElement => {
     { label: '100', value: 1 },
     { label: '75', value: 0.75 },
     { label: '50', value: 0.5 }
-  ];
+  ]
 
   useEffect(() => {
-    const scale = storage.getVideoScale();
+    const scale = storage.getVideoScale()
     if (scale) {
-      setVideoScale(scale);
+      setVideoScale(scale)
     }
-  }, []);
+  }, [])
 
   async function updateScale(scale: number): Promise<void> {
-    setVideoScale(scale);
-    storage.setVideoScale(scale);
+    setVideoScale(scale)
+    storage.setVideoScale(scale)
   }
 
   const content = (
@@ -40,7 +40,7 @@ export const Scale = (): ReactElement => {
         <div
           key={item.value}
           className={clsx(
-            'flex cursor-pointer select-none items-center space-x-0.5 rounded px-5 py-1.5 hover:bg-neutral-700/60',
+            'flex cursor-pointer items-center space-x-0.5 rounded px-5 py-1.5 select-none hover:bg-neutral-700/60',
             item.value === videoScale ? 'text-blue-500' : 'text-white'
           )}
           onClick={() => updateScale(item.value)}
@@ -50,7 +50,7 @@ export const Scale = (): ReactElement => {
         </div>
       ))}
     </>
-  );
+  )
 
   return (
     <Popover content={content} placement="rightTop" arrow={false} align={{ offset: [13, 0] }}>
@@ -61,5 +61,5 @@ export const Scale = (): ReactElement => {
         <span>{t('video.scale')}</span>
       </div>
     </Popover>
-  );
-};
+  )
+}

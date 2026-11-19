@@ -42,7 +42,8 @@ const zh = {
     },
     audio: {
       tip: '提示',
-      permission: '需要麦克风权限来获取 USB 设备的音频信号。因为电脑系统会将 USB 音频输入设备识别为麦克风，而非扬声器。\n\n此操作仅用于设备连接，不会录制任何声音。',
+      permission:
+        '需要麦克风权限来获取 USB 设备的音频信号。因为电脑系统会将 USB 音频输入设备识别为麦克风，而非扬声器。\n\n此操作仅用于设备连接，不会录制任何声音。',
       viewDoc: '查看文档。',
       ok: '确定'
     },
@@ -136,6 +137,6 @@ const zh = {
       }
     }
   }
-};
+}
 
-export default zh;
+export default zh

@@ -8,7 +8,7 @@ export const ModifierBits = {
   RightShift: 1 << 5,
   RightAlt: 1 << 6,
   RightMeta: 1 << 7
-} as const;
+} as const
 
 // Map event.code to HID modifier bit
 export const ModifierMap: Record<string, number> = {
@@ -20,7 +20,7 @@ export const ModifierMap: Record<string, number> = {
   ShiftRight: ModifierBits.RightShift,
   AltRight: ModifierBits.RightAlt,
   MetaRight: ModifierBits.RightMeta
-};
+}
 
 // Map event.code to HID keycode
 export const KeycodeMap: Record<string, number> = {
@@ -263,19 +263,19 @@ export const KeycodeMap: Record<string, number> = {
   AltRight: 0xe6,
   MetaRight: 0xe7,
   WinRight: 0xe7
-};
+}
 
 // Check if code is a modifier key
 export function isModifier(code: string): boolean {
-  return code in ModifierMap;
+  return code in ModifierMap
 }
 
 // Get modifier bit for code
 export function getModifierBit(code: string): number {
-  return ModifierMap[code] ?? 0;
+  return ModifierMap[code] ?? 0
 }
 
 // Get keycode for code
 export function getKeycode(code: string): number | undefined {
-  return KeycodeMap[code];
+  return KeycodeMap[code]
 }

@@ -1,17 +1,17 @@
-import { useEffect, useRef, useState } from 'react';
-import { Button, Divider, Input, InputRef, Modal } from 'antd';
-import { useSetAtom } from 'jotai';
-import { KeyboardIcon, Trash2Icon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useRef, useState } from 'react'
+import { Button, Divider, Input, InputRef, Modal } from 'antd'
+import { useSetAtom } from 'jotai'
+import { KeyboardIcon, Trash2Icon } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 
-import { Kbd, KbdGroup } from '@/components/ui/kbd.tsx';
-import { ScrollArea } from '@/components/ui/scroll-area.tsx';
-import { isKeyboardEnableAtom } from '@/jotai/keyboard.ts';
-import { isModifier } from '@/libs/keyboard/keymap.ts';
+import { Kbd, KbdGroup } from '@/components/ui/kbd.tsx'
+import { ScrollArea } from '@/components/ui/scroll-area.tsx'
+import { isKeyboardEnableAtom } from '@/jotai/keyboard.ts'
+import { isModifier } from '@/libs/keyboard/keymap.ts'
 
-import { KeyInfo, Shortcut } from './types.ts';
+import { KeyInfo, Shortcut } from './types.ts'
 
-const MAX_KEYS = 6;
+const MAX_KEYS = 6
 
 const SpecialKeyMap: Record<string, string> = {
   Space: 'Space',
@@ -30,7 +30,7 @@ const SpecialKeyMap: Record<string, string> = {
   End: 'End',
   PageUp: 'PgUp',
   PageDown: 'PgDn'
-};
+}
 
 const PunctuationMap: Record<string, string> = {
   Minus: '-',
@@ -44,13 +44,13 @@ const PunctuationMap: Record<string, string> = {
   Comma: ',',
   Period: '.',
   Slash: '/'
-};
+}
 
 interface RecorderProps {
-  shortcuts: Shortcut[];
-  addShortcut: (shortcut: Shortcut) => void;
-  delShortcut: (index: number) => void;
-  setIsRecording: (isRecording: boolean) => void;
+  shortcuts: Shortcut[]
+  addShortcut: (shortcut: Shortcut) => void
+  delShortcut: (index: number) => void
+  setIsRecording: (isRecording: boolean) => void
 }
 
 export const Recorder = ({
@@ -59,128 +59,128 @@ export const Recorder = ({
   delShortcut,
   setIsRecording
 }: RecorderProps) => {
-  const { t } = useTranslation();
-  const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom);
+  const { t } = useTranslation()
+  const setIsKeyboardEnable = useSetAtom(isKeyboardEnableAtom)
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isFocused, setIsFocused] = useState(false);
-  const [shortcutLabel, setShortcutLabel] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isFocused, setIsFocused] = useState(false)
+  const [shortcutLabel, setShortcutLabel] = useState('')
 
-  const inputRef = useRef<InputRef | null>(null);
-  const recordedKeysRef = useRef<KeyInfo[]>([]);
+  const inputRef = useRef<InputRef | null>(null)
+  const recordedKeysRef = useRef<KeyInfo[]>([])
 
   useEffect(() => {
-    setIsKeyboardEnable(!isModalOpen);
-    setIsRecording(isModalOpen);
+    setIsKeyboardEnable(!isModalOpen)
+    setIsRecording(isModalOpen)
 
-    if (!isModalOpen) return;
+    if (!isModalOpen) return
 
     const timer = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
+      inputRef.current?.focus()
+    }, 100)
 
     return () => {
-      clearTimeout(timer);
-    };
-  }, [isModalOpen]);
+      clearTimeout(timer)
+    }
+  }, [isModalOpen])
 
   useEffect(() => {
-    if (!isFocused) return;
+    if (!isFocused) return
 
     const handleKeyDown = (event: KeyboardEvent): void => {
-      event.preventDefault();
-      event.stopPropagation();
+      event.preventDefault()
+      event.stopPropagation()
 
-      const { key, code } = event;
+      const { key, code } = event
 
-      const isRecorded = recordedKeysRef.current.some((k) => k.code === code);
-      if (isRecorded) return;
+      const isRecorded = recordedKeysRef.current.some((k) => k.code === code)
+      if (isRecorded) return
 
-      if (recordedKeysRef.current.length >= MAX_KEYS) return;
+      if (recordedKeysRef.current.length >= MAX_KEYS) return
 
       const keyInfo: KeyInfo = {
         code: code,
         label: formatKeyDisplay(key, code)
-      };
+      }
 
-      setShortcutLabel((prev) => (prev ? `${prev} + ${keyInfo.label}` : keyInfo.label));
-      recordedKeysRef.current.push(keyInfo);
-    };
+      setShortcutLabel((prev) => (prev ? `${prev} + ${keyInfo.label}` : keyInfo.label))
+      recordedKeysRef.current.push(keyInfo)
+    }
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown)
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isFocused]);
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isFocused])
 
   const formatKeyDisplay = (key: string, code: string): string => {
     if (isModifier(code)) {
       if (code.startsWith('Control')) {
-        return 'Ctrl';
+        return 'Ctrl'
       }
       if (code.startsWith('Shift')) {
-        return 'Shift';
+        return 'Shift'
       }
       if (code.startsWith('Alt')) {
-        return 'Alt';
+        return 'Alt'
       }
       if (code.startsWith('Meta')) {
-        return 'Win';
+        return 'Win'
       }
     }
 
     if (code.startsWith('Digit')) {
-      return code.replace('Digit', '');
+      return code.replace('Digit', '')
     }
     if (code.startsWith('Key')) {
-      return code.replace('Key', '');
+      return code.replace('Key', '')
     }
     if (code.startsWith('Numpad')) {
-      const numpadKey = code.replace('Numpad', '');
-      return `Num${numpadKey}`;
+      const numpadKey = code.replace('Numpad', '')
+      return `Num${numpadKey}`
     }
     if (code.startsWith('F') && /^F\d+$/.test(code)) {
-      return code; // F1, F2, etc.
+      return code // F1, F2, etc.
     }
 
     if (SpecialKeyMap[code]) {
-      return SpecialKeyMap[code];
+      return SpecialKeyMap[code]
     }
     if (PunctuationMap[code]) {
-      return PunctuationMap[code];
+      return PunctuationMap[code]
     }
 
-    return key.toUpperCase();
-  };
+    return key.toUpperCase()
+  }
 
   function saveShortcut() {
     if (recordedKeysRef.current.length > 0) {
-      addShortcut({ keys: recordedKeysRef.current });
+      addShortcut({ keys: recordedKeysRef.current })
     }
 
-    clearShortcut();
+    clearShortcut()
   }
 
   function clearShortcut() {
-    setShortcutLabel('');
-    recordedKeysRef.current = [];
+    setShortcutLabel('')
+    recordedKeysRef.current = []
   }
 
   function closeModal() {
-    clearShortcut();
-    setIsModalOpen(false);
+    clearShortcut()
+    setIsModalOpen(false)
   }
 
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
+      document.documentElement.requestFullscreen()
       // @ts-expect-error - https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/lock
-      navigator.keyboard?.lock();
+      navigator.keyboard?.lock()
     } else {
-      document.exitFullscreen();
+      document.exitFullscreen()
       // @ts-expect-error - https://developer.mozilla.org/en-US/docs/Web/API/Keyboard/unlock
-      navigator.keyboard?.unlock();
+      navigator.keyboard?.unlock()
     }
   }
 
@@ -258,5 +258,5 @@ export const Recorder = ({
         )}
       </Modal>
     </>
-  );
-};
+  )
+}

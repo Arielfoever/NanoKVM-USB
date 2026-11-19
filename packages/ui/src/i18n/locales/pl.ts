@@ -91,6 +91,6 @@ const pl = {
       failed: 'Nie udało połączyć się z portem szeregowym. Spróbuj ponownie.'
     }
   }
-};
+}
 
-export default pl;
+export default pl

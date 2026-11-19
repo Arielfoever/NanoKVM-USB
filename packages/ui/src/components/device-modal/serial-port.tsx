@@ -1,13 +1,12 @@
-import { useEffect, useState } from 'react';
-import { Button, Select } from 'antd';
-import { useAtom, useAtomValue } from 'jotai';
-import { useTranslation } from 'react-i18next';
+import { useEffect, useState } from 'react'
+import { Button, Select } from 'antd'
+import { useAtom, useAtomValue } from 'jotai'
+import { useTranslation } from 'react-i18next'
 
-import type { SerialPortInfo } from '@nanokvm/core';
-
-import { autoReconnectAtom, baudRateAtom, serialPortAtom, serialStateAtom } from '@/jotai/device.ts';
-import * as storage from '@/libs/storage';
-import { getPlatform } from '@/services';
+import type { SerialPortInfo } from '@nanokvm/core'
+import { autoReconnectAtom, baudRateAtom, serialPortAtom, serialStateAtom } from '@/jotai/device.ts'
+import * as storage from '@/libs/storage'
+import { getPlatform } from '@/services'
 
 const BAUD_RATE_OPTIONS = [
   { value: 1200, label: '1200' },
@@ -19,113 +18,113 @@ const BAUD_RATE_OPTIONS = [
   { value: 38400, label: '38400' },
   { value: 57600, label: '57600' },
   { value: 115200, label: '115200' }
-];
+]
 
 type SerialPortProps = {
-  setErrMsg: (msg: string) => void;
-};
+  setErrMsg: (msg: string) => void
+}
 
 export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
-  const transport = getPlatform().transport;
-  const supportsEnumeration = transport.supportsEnumeration();
+  const transport = getPlatform().transport
+  const supportsEnumeration = transport.supportsEnumeration()
 
-  const [serialState, setSerialState] = useAtom(serialStateAtom);
-  const [serialPort, setSerialPort] = useAtom(serialPortAtom);
-  const [baudRate, setBaudRate] = useAtom(baudRateAtom);
-  const autoReconnect = useAtomValue(autoReconnectAtom);
+  const [serialState, setSerialState] = useAtom(serialStateAtom)
+  const [serialPort, setSerialPort] = useAtom(serialPortAtom)
+  const [baudRate, setBaudRate] = useAtom(baudRateAtom)
+  const autoReconnect = useAtomValue(autoReconnectAtom)
 
-  const [ports, setPorts] = useState<SerialPortInfo[]>([]);
-  const [isReconnecting, setIsReconnecting] = useState(false);
+  const [ports, setPorts] = useState<SerialPortInfo[]>([])
+  const [isReconnecting, setIsReconnecting] = useState(false)
 
   useEffect(() => {
-    if (serialState === 'connected') return;
+    if (serialState === 'connected') return
 
     if (!transport.isSupported()) {
-      setSerialState('notSupported');
-      return;
+      setSerialState('notSupported')
+      return
     }
 
-    if (!supportsEnumeration) return;
+    if (!supportsEnumeration) return
 
-    let cancelled = false;
+    let cancelled = false
 
     listPorts().then((available) => {
-      if (cancelled || !autoReconnect) return;
+      if (cancelled || !autoReconnect) return
 
-      const savedPort = storage.getSerialPort();
-      if (!savedPort || !available.some((port) => port.path === savedPort)) return;
+      const savedPort = storage.getSerialPort()
+      if (!savedPort || !available.some((port) => port.path === savedPort)) return
 
-      setIsReconnecting(true);
-      openPort(savedPort, storage.getBaudRate()).finally(() => setIsReconnecting(false));
-    });
+      setIsReconnecting(true)
+      openPort(savedPort, storage.getBaudRate()).finally(() => setIsReconnecting(false))
+    })
 
     return () => {
-      cancelled = true;
-    };
-  }, []);
+      cancelled = true
+    }
+  }, [])
 
   async function listPorts(): Promise<SerialPortInfo[]> {
-    const available = await transport.list();
-    setPorts(available);
-    return available;
+    const available = await transport.list()
+    setPorts(available)
+    return available
   }
 
   async function openPort(path: string, rate: number = baudRate): Promise<void> {
-    if (serialState === 'connecting') return;
+    if (serialState === 'connecting') return
 
-    setSerialState('connecting');
-    setErrMsg('');
+    setSerialState('connecting')
+    setErrMsg('')
 
     try {
-      await transport.open({ path, baudRate: rate });
-      setSerialPort(path);
-      storage.setSerialPort(path);
-      setSerialState('connected');
+      await transport.open({ path, baudRate: rate })
+      setSerialPort(path)
+      storage.setSerialPort(path)
+      setSerialState('connected')
     } catch (err) {
-      console.log(err);
-      setSerialState('disconnected');
-      setErrMsg(t('serial.failed'));
+      console.log(err)
+      setSerialState('disconnected')
+      setErrMsg(t('serial.failed'))
     }
   }
 
   async function selectSerialPort(): Promise<void> {
-    if (serialState === 'connecting') return;
+    if (serialState === 'connecting') return
 
-    setSerialState('connecting');
-    setErrMsg('');
+    setSerialState('connecting')
+    setErrMsg('')
 
     try {
-      await transport.request();
-      await transport.open({ baudRate });
-      setSerialState('connected');
+      await transport.request()
+      await transport.open({ baudRate })
+      setSerialState('connected')
     } catch (err) {
-      console.log(err);
-      setSerialState('disconnected');
-      setErrMsg(t('serial.failed'));
+      console.log(err)
+      setSerialState('disconnected')
+      setErrMsg(t('serial.failed'))
     }
   }
 
   async function changeBaudRate(rate: number): Promise<void> {
-    setBaudRate(rate);
-    storage.setBaudRate(rate);
+    setBaudRate(rate)
+    storage.setBaudRate(rate)
 
     // 桌面端在已连接时切换波特率：重开端口让新速率立即生效
     if (serialState === 'connected' && supportsEnumeration && serialPort) {
       try {
-        await transport.close();
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        await transport.open({ path: serialPort, baudRate: rate });
+        await transport.close()
+        await new Promise((resolve) => setTimeout(resolve, 300))
+        await transport.open({ path: serialPort, baudRate: rate })
       } catch (err) {
-        console.log(err);
-        setSerialState('disconnected');
+        console.log(err)
+        setSerialState('disconnected')
       }
     }
   }
 
   if (serialState === 'notSupported') {
-    return null;
+    return null
   }
 
   const baudRateSelect = (
@@ -136,7 +135,7 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
       onChange={changeBaudRate}
       title={t('modal.baudRate')}
     />
-  );
+  )
 
   if (!supportsEnumeration) {
     return (
@@ -151,7 +150,7 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
         </Button>
         {baudRateSelect}
       </div>
-    );
+    )
   }
 
   return (
@@ -168,5 +167,5 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
       />
       {baudRateSelect}
     </div>
-  );
-};
+  )
+}
