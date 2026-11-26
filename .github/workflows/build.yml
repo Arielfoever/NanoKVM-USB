@@ -127,6 +127,10 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     if: always() && (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.desktop == 'true')
+    env:
+      # 固定缓存目录，避免 Electron / electron-builder 每次重新下载工具链
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     strategy:
       fail-fast: false
       matrix:
@@ -146,6 +150,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Cache Electron and electron-builder toolchains
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/electron
+            .cache/electron-builder
+          key: electron-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            electron-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4

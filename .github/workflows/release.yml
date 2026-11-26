@@ -166,11 +166,25 @@ jobs:
     # 每个 secret 只在真正需要它的 step 内通过 env/with 注入。
     # macOS 签名/公证在 release 流程中是硬性要求，缺失时直接失败（见下方校验 step）。
     # Windows 签名证书可选，由 Detect 步骤输出后决定走签名还是未签名构建。
+    env:
+      # 固定缓存目录，避免 Electron / electron-builder 每次重新下载工具链
+      ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
+      ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
           ref: ${{ needs.create-tag.outputs.release_tag }}
+
+      - name: Cache Electron and electron-builder toolchains
+        uses: actions/cache@v4
+        with:
+          path: |
+            .cache/electron
+            .cache/electron-builder
+          key: electron-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            electron-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
