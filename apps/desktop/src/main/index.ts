@@ -49,7 +49,15 @@ app.whenReady().then(() => {
   electronApp.setAppUserModelId('com.sipeed.usbkvm')
 
   session.defaultSession.setPermissionRequestHandler((_, permission, callback) => {
-    const allowedPermissions = ['media', 'clipboard-read', 'pointerLock']
+    // fullscreen / keyboardLock 是菜单全屏按钮（含快捷键捕获）所需，
+    // 缺省会被 Electron 拒绝，表现为桌面端点全屏没反应。
+    const allowedPermissions = [
+      'media',
+      'clipboard-read',
+      'pointerLock',
+      'fullscreen',
+      'keyboardLock'
+    ]
     callback(allowedPermissions.includes(permission))
   })
 
