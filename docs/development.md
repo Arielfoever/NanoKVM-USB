@@ -83,7 +83,7 @@ packages/core     ← 协议编解码、Device 门面、接口定义（不依赖
 
 注意事项：
 
-- **macOS 安装包只能在 macOS 上构建**（electron-builder 明确拒绝其他平台）；签名/公证需要 `APPLE_CERTIFICATE`/`APPLE_ID`/`APPLE_APP_SPECIFIC_PASSWORD`/`APPLE_TEAM_ID`，未配置时 `notarize.js` 会跳过公证（产物未公证，Gatekeeper 会提示）。
+- **macOS 安装包只能在 macOS 上构建**（electron-builder 明确拒绝其他平台）；正式发布需要 `APPLE_CERTIFICATE`/`APPLE_CERTIFICATE_PASSWORD`/`APPLE_ID`/`APPLE_APP_SPECIFIC_PASSWORD`/`APPLE_TEAM_ID`。`mac.forceCodeSigning: true` 会在找不到有效签名证书时直接失败，不会静默产出未签名安装包；仅本地调试如需未签名产物，可显式覆盖 `-c.mac.forceCodeSigning=false`（该产物不可用于发布）。
 - **Linux 包建议在 Linux 上构建**（或 WSL）；`rpm` 目标需要 `rpmbuild`（CI 中已 `apt-get install rpm`），deb 需要 GTK/NSS 等运行库由目标系统安装。
 - Windows 安装包未配置代码签名证书，SmartScreen 会提示"未知发布者"；正式发布需配置证书。
 - GitHub Actions 的 `release.yml` 已支持三平台矩阵构建（Windows/Linux/macOS，`build:*-full`），并生成 `latest*.yml` 自动更新元数据。
@@ -98,7 +98,7 @@ packages/core     ← 协议编解码、Device 门面、接口定义（不依赖
   1. 从根 `package.json` 读取版本号，创建/复用 `v<version>` tag 并推送；
   2. 构建浏览器 zip + 三平台桌面产物（Windows / Linux / macOS，x64 + arm64）；
   3. 创建 GitHub Release 并附上全部产物（安装包脚本统一带 `--publish never`，发布只由 release job 完成，避免重复/竞态）。
-  - 可选 secrets：`APPLE_CERTIFICATE` + `APPLE_CERTIFICATE_PASSWORD`（macOS 签名）、`APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` + `APPLE_TEAM_ID`（macOS 公证）、`WINDOWS_CERTIFICATE` + `WINDOWS_CERTIFICATE_PASSWORD`（Windows 签名）。未配置时产物为未签名版本。
+  - 发布必填 secrets：`APPLE_CERTIFICATE` + `APPLE_CERTIFICATE_PASSWORD`（macOS 签名）、`APPLE_ID` + `APPLE_APP_SPECIFIC_PASSWORD` + `APPLE_TEAM_ID`（macOS 公证）；macOS 缺失时 release 直接失败。Windows 签名证书为可选项：`WINDOWS_CERTIFICATE` + `WINDOWS_CERTIFICATE_PASSWORD`，未配置时产物为未签名版本。
   - 前置条件：先把新版本号提交到 `main`（tag 与产物版本都来自根 `package.json`）。
 
 ## 常见问题

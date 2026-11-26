@@ -66,7 +66,7 @@
 | 网页版已连接时重选串口、取消被当成断开 | 先执行 `request()`，用户取消（`NotFoundError` / `No port selected`）时恢复原连接状态且不报错；只有真正 `open()` 失败才置为断开 |
 | 发布 tag 版本与安装包版本无校验 | release workflow 校验根 `package.json`、`apps/desktop/package.json`、`apps/browser/package.json` 三处版本一致 |
 | 已存在 tag 会复用并覆盖已发布资产 | 手动发布时 tag 已存在直接失败；发布前检查 GitHub Release 是否已存在，已发布则拒绝继续；`softprops/action-gh-release` 显式 `overwrite_files: false` |
-| mac 缺签名证书时静默跳过 | release workflow 在 macOS job 上校验 `APPLE_CERTIFICATE` / `APPLE_CERTIFICATE_PASSWORD` / `APPLE_ID` / `APPLE_APP_SPECIFIC_PASSWORD` / `APPLE_TEAM_ID`，缺失直接失败 |
+| mac 缺签名证书时静默跳过 | electron-builder 启用 `mac.forceCodeSigning: true`，找不到有效签名证书直接失败，不再产出未签名安装包；release workflow 另在构建前校验 5 个 Apple secrets |
 | 证书 secrets 暴露范围变大 | 移除 job 级 secrets env；macOS 证书/账号只在 macOS 的校验/导入/构建 step 注入，Windows 证书先检测再只注入 Windows 构建 step |
 | 串口打开失败不显示具体原因 | 错误信息改为 `Failed to connect serial: <具体原因>`，桌面 IPC 与 Web Serial 的底层错误都会带出 |
 | 相对鼠标提示每次重渲染都弹 | 提示移入 `useEffect` 并加一次性 ref 守卫，只在进入相对模式时弹一次 |
@@ -87,7 +87,7 @@
 | `electron-builder --dir --publish never` | ✅ Linux unpacked 打包成功；`app.asar` 内 `package.json.name === "nanokvm-usb"` |
 | CSS 层顺序 | ✅ 浏览器/桌面构建产物均含 `@layer components, antd;` 且位于 `@layer utilities` 之前 |
 | Docker 构建 | ✅ `docker build -t nanokvm-usb-web:pr-check .` 成功（前端构建 + nginx 镜像） |
-| macOS 签名/公证 | ⏳ 需在 release workflow + 真实证书环境验证 |
+| macOS 签名/公证 | ⏳ 需在 release workflow + 真实证书环境验证；`mac.forceCodeSigning: true` 已确保缺证书时构建失败 |
 | 硬件/GUI 冒烟 | ⏳ 摄像头、串口热插拔/自动重连、全屏 + 键盘锁、相对鼠标提示、Web Serial 取消选择、快捷键等需按手工清单在真机复测 |
 
 ## 5. 待人工验证清单
