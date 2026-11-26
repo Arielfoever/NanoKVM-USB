@@ -3,7 +3,7 @@ WORKDIR /app
 
 RUN npm install -g pnpm@12.21.0
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
 COPY packages ./packages
 COPY apps/browser ./apps/browser
 
