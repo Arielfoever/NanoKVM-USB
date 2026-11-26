@@ -48,6 +48,20 @@ jobs:
           echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
           echo "Release version: v${VERSION}"
 
+      - name: Verify version matches installer packages
+        run: |
+          ROOT_VERSION=$(jq -r .version package.json)
+          DESKTOP_VERSION=$(jq -r .version apps/desktop/package.json)
+          BROWSER_VERSION=$(jq -r .version apps/browser/package.json)
+
+          if [ "$ROOT_VERSION" != "$DESKTOP_VERSION" ] || [ "$ROOT_VERSION" != "$BROWSER_VERSION" ]; then
+            echo "::error::Version mismatch: root=$ROOT_VERSION desktop=$DESKTOP_VERSION browser=$BROWSER_VERSION."
+            echo "::error::The tag and the installer version must come from the same version. Update all package.json files before releasing."
+            exit 1
+          fi
+
+          echo "Version sources agree: $ROOT_VERSION"
+
       - name: Verify tag matches package version
         if: github.event_name == 'push'
         env:
@@ -59,6 +73,18 @@ jobs:
           fi
           echo "Tag $GITHUB_REF_NAME matches package.json version."
 
+      - name: Refuse to overwrite an existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" >/dev/null 2>&1; then
+            echo "::error::Release ${TAG} already exists. Refusing to overwrite already-published assets."
+            echo "::error::Bump the version and create a new tag instead of re-running against an existing release."
+            exit 1
+          fi
+          echo "Release ${TAG} does not exist yet."
+
       - name: Create tag if it does not exist
         if: github.event_name != 'push'
         env:
@@ -67,11 +93,12 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
-            echo "Tag $TAG already exists on origin, reusing it."
-          else
-            git tag -a "$TAG" -m "Release $TAG"
-            git push origin "$TAG"
+            echo "::error::Tag $TAG already exists. Refusing to reuse a tag that may already point at released assets."
+            echo "::error::Bump the version and create a new tag instead."
+            exit 1
           fi
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
 
   build-browser:
     name: Build Browser Bundle
@@ -213,6 +240,16 @@ jobs:
     permissions:
       contents: write
     steps:
+      - name: Refuse to overwrite an existing release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.create-tag.outputs.release_tag }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${TAG}" >/dev/null 2>&1; then
+            echo "::error::Release ${TAG} already exists. Refusing to overwrite already-published assets."
+            exit 1
+          fi
+
       - name: Download all artifacts
         uses: actions/download-artifact@v4
         with:
@@ -229,6 +266,7 @@ jobs:
           draft: ${{ inputs.draft || false }}
           prerelease: ${{ inputs.prerelease || false }}
           fail_on_unmatched_files: false
+          overwrite_files: false
           files: |
             release-artifacts/**/*
           generate_release_notes: true
