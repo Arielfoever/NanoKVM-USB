@@ -53,46 +53,10 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-  detect-changes:
-    name: Detect Changed Paths
-    # workflow_dispatch 时不需要过滤，直接全量构建
-    if: github.event_name != 'workflow_dispatch'
-    runs-on: ubuntu-latest
-    outputs:
-      browser: ${{ steps.filter.outputs.browser }}
-      desktop: ${{ steps.filter.outputs.desktop }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Filter changes
-        id: filter
-        uses: dorny/paths-filter@v4
-        with:
-          filters: |
-            browser:
-              - 'apps/browser/**'
-              - 'packages/**'
-              - 'package.json'
-              - 'tsconfig.base.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-            desktop:
-              - 'apps/desktop/**'
-              - 'packages/**'
-              - 'package.json'
-              - 'tsconfig.base.json'
-              - 'pnpm-lock.yaml'
-              - 'pnpm-workspace.yaml'
-
   build-browser:
     name: Build Browser Bundle
-    needs: detect-changes
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: always() && (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.browser == 'true')
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -123,10 +87,8 @@ jobs:
 
   build-desktop:
     name: Build Desktop (${{ matrix.target }})
-    needs: detect-changes
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
-    if: always() && (github.event_name == 'workflow_dispatch' || needs.detect-changes.outputs.desktop == 'true')
     env:
       # 固定缓存目录，避免 Electron / electron-builder 每次重新下载工具链
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
