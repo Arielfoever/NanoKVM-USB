@@ -48,6 +48,11 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
     setErrMsg(detail ? `${t('serial.failed')}: ${detail}` : t('serial.failed'))
   }
 
+  function isUserCancelled(err: unknown): boolean {
+    if (!(err instanceof Error)) return false
+    return err.name === 'NotFoundError' || /no port selected/i.test(err.message)
+  }
+
   useEffect(() => {
     if (serialState === 'connected') return
 
@@ -104,11 +109,23 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
   async function selectSerialPort(): Promise<void> {
     if (serialState === 'connecting') return
 
+    const previousState = serialState
     setSerialState('connecting')
     setErrMsg('')
 
     try {
       await transport.request()
+    } catch (err) {
+      console.log(err)
+      // 用户取消系统端口选择时，原连接仍然有效，不能误判为断开
+      setSerialState(previousState === 'connected' ? 'connected' : 'disconnected')
+      if (!isUserCancelled(err)) {
+        setSerialError(err)
+      }
+      return
+    }
+
+    try {
       await transport.open({ baudRate })
       setSerialState('connected')
     } catch (err) {
