@@ -38,6 +38,16 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
   const [ports, setPorts] = useState<SerialPortInfo[]>([])
   const [isReconnecting, setIsReconnecting] = useState(false)
 
+  function errorDetail(err: unknown): string {
+    if (err instanceof Error && err.message) return err.message
+    return typeof err === 'string' ? err : ''
+  }
+
+  function setSerialError(err: unknown): void {
+    const detail = errorDetail(err)
+    setErrMsg(detail ? `${t('serial.failed')}: ${detail}` : t('serial.failed'))
+  }
+
   useEffect(() => {
     if (serialState === 'connected') return
 
@@ -84,8 +94,10 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
       setSerialState('connected')
     } catch (err) {
       console.log(err)
+      // 打开失败时旧连接已被主进程关闭，清空选中值，允许再次选择同一个端口
+      setSerialPort('')
       setSerialState('disconnected')
-      setErrMsg(t('serial.failed'))
+      setSerialError(err)
     }
   }
 
@@ -102,7 +114,7 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
     } catch (err) {
       console.log(err)
       setSerialState('disconnected')
-      setErrMsg(t('serial.failed'))
+      setSerialError(err)
     }
   }
 
@@ -118,7 +130,9 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
         await transport.open({ path: serialPort, baudRate: rate })
       } catch (err) {
         console.log(err)
+        setSerialPort('')
         setSerialState('disconnected')
+        setSerialError(err)
       }
     }
   }
@@ -163,7 +177,11 @@ export const SerialPort = ({ setErrMsg }: SerialPortProps) => {
         loading={serialState === 'connecting' || isReconnecting}
         placeholder={t('modal.selectSerial')}
         onChange={(path) => (path ? openPort(path) : undefined)}
-        onClick={() => listPorts()}
+        onOpenChange={(open) => {
+          if (open) {
+            listPorts()
+          }
+        }}
       />
       {baudRateSelect}
     </div>
