@@ -1,6 +1,12 @@
 appId: com.sipeed.usbkvm
 productName: NanoKVM-USB
 
+# package.json 的 name 已改为 @nanokvm/desktop（workspace 包名），
+# 但 Electron 用 name 决定 userData 目录。这里覆盖回 1.1.4 的旧名字，
+# 避免老用户升级后语言/视频设备/分辨率/串口/快捷键等设置全部丢失。
+extraMetadata:
+  name: nanokvm-usb
+
 directories:
   buildResources: build
 

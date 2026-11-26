@@ -8,6 +8,11 @@ import * as events from './events'
 
 console.error = log.error
 
+// 必须在 app ready / 任何 getPath('userData') 之前调用。
+// workspace 包名是 @nanokvm/desktop，而 1.1.4 的包名是 nanokvm-usb；
+// 不固定名字会让 Electron 把 userData 切到新目录，老用户设置全部丢失。
+app.setName('nanokvm-usb')
+
 let mainWindow: BrowserWindow
 
 function createWindow(): void {
