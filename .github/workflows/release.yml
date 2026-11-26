@@ -37,7 +37,7 @@ jobs:
       release_tag: ${{ steps.version.outputs.tag }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -107,17 +107,17 @@ jobs:
     timeout-minutes: 15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.create-tag.outputs.release_tag }}
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -135,7 +135,7 @@ jobs:
           cd ..
 
       - name: Upload browser artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: browser-release
           path: apps/browser/nanokvm-usb-browser-${{ needs.create-tag.outputs.release_tag }}.zip
@@ -172,12 +172,12 @@ jobs:
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ needs.create-tag.outputs.release_tag }}
 
       - name: Cache Electron and electron-builder toolchains
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: |
             .cache/electron
@@ -187,12 +187,12 @@ jobs:
             electron-${{ runner.os }}-${{ runner.arch }}-
 
       - name: Setup pnpm
-        uses: pnpm/action-setup@v4
+        uses: pnpm/action-setup@v6
         with:
           version: ${{ env.PNPM_VERSION }}
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: pnpm
@@ -243,7 +243,7 @@ jobs:
 
       - name: Import macOS code-signing certificate
         if: startsWith(matrix.os, 'macos')
-        uses: apple-actions/import-codesign-certs@v3
+        uses: apple-actions/import-codesign-certs@v7
         with:
           p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
           p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
@@ -275,7 +275,7 @@ jobs:
         run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
 
       - name: Upload desktop artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ matrix.artifact_name }}
           path: |
@@ -307,7 +307,7 @@ jobs:
           fi
 
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: release-artifacts
 
@@ -315,7 +315,7 @@ jobs:
         run: ls -R release-artifacts
 
       - name: Create Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ needs.create-tag.outputs.release_tag }}
           name: ${{ needs.create-tag.outputs.release_tag }}
