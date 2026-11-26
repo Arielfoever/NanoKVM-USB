@@ -16,6 +16,12 @@ export class SerialPort {
   readonly SERIAL_BAUD_RATE = 57600
   readonly READ_TIMEOUT = 500
 
+  /**
+   * 接收缓冲上限。协议单次读取只有十几字节，正常情况下缓冲不会超过这个量。
+   * 设置硬上限是为了防止异常/持续上报的设备把内存吃满（旧实现只进不出）。
+   */
+  private readonly MAX_BUFFER_SIZE = 1024 * 1024
+
   private port: SP | null = null
   private onDisconnect?: () => void
   private buffer: number[] = []
@@ -72,7 +78,15 @@ export class SerialPort {
   }
 
   private handleData = (data: Buffer): void => {
-    this.buffer.push(...data)
+    for (const byte of data) {
+      this.buffer.push(byte)
+    }
+
+    if (this.buffer.length > this.MAX_BUFFER_SIZE) {
+      // 丢弃最旧的字节，保证内存有界；正常协议读取不会触发到这里
+      this.buffer.splice(0, this.buffer.length - this.MAX_BUFFER_SIZE)
+    }
+
     this.notifyWaiters()
   }
 
