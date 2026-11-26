@@ -88,6 +88,7 @@
 | CSS 层顺序 | ✅ 浏览器/桌面构建产物均含 `@layer components, antd;` 且位于 `@layer utilities` 之前 |
 | Docker 构建 | ✅ `docker build -t nanokvm-usb-web:pr-check .` 成功（前端构建 + nginx 镜像） |
 | macOS 签名/公证 | ⏳ 需在 release workflow + 真实证书环境验证；`mac.forceCodeSigning: true` 已确保缺证书时构建失败 |
+| CI macOS 未签名构建 | ⏳ `build.yml` 新增 macOS x64 矩阵项，使用 `build:mac-unsigned` 显式关闭签名；需在 GitHub Actions 跑一次 |
 | 硬件/GUI 冒烟 | ⏳ 摄像头、串口热插拔/自动重连、全屏 + 键盘锁、相对鼠标提示、Web Serial 取消选择、快捷键等需按手工清单在真机复测 |
 
 ## 5. 待人工验证清单
@@ -101,10 +102,11 @@
 7. 相对鼠标模式只弹一次操作提示，重渲染不再重复弹出。
 8. 长时间串口运行（含异常上报）内存不持续增长。
 9. release workflow 在版本不一致、tag 已存在、release 已存在、mac secrets 缺失时均能失败阻断。
+10. `build.yml` 的 macOS x64 未签名构建能产出 dmg/zip 并上传 artifact。
 
 ## 6. 风险与回滚
 
 - **Electron 45 / React 19 / antd 6** 属于大版本升级，已通过类型检查、构建与协议单测；视觉与硬件交互仍需真机回归。
 - **pnpm workspace** 改变了安装/打包拓扑，`electron-builder` 已改用 `pnpm` 检测；回滚时需同时恢复 lockfile 与 workspace 配置。
-- **发布流程** 改为“缺 mac 证书即失败”，首次使用前需在仓库 secrets 中配齐 5 个 Apple 凭据；这是有意的防呆变更。
+- **发布流程** 改为“缺 mac 证书即失败”，首次使用前需在仓库 secrets 中配齐 5 个 Apple 凭据；这是有意的防呆变更。CI 的 `build.yml` 使用独立的未签名 macOS 脚本，不依赖这些 secrets。
 - 若需回滚单点修复，`extraMetadata.name` / `app.setName`、Dockerfile COPY、CSS 层顺序、串口缓冲上限均可独立回退，不影响其他改动。
