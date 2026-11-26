@@ -139,6 +139,10 @@ jobs:
             target: windows
             build_script: build:win
             artifact_name: desktop-windows-x64
+          - os: macos-latest
+            target: macos
+            build_script: build:mac-unsigned
+            artifact_name: desktop-macos-x64
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -164,6 +168,14 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build desktop package
+        if: matrix.os != 'macos-latest'
+        run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
+
+      - name: Build desktop package (macOS, unsigned)
+        if: matrix.os == 'macos-latest'
+        env:
+          # CI 只验证 macOS 能构建；不签名、不公证，避免依赖发布证书
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
         run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
 
       - name: Upload desktop installers
@@ -175,5 +187,7 @@ jobs:
             apps/desktop/dist/*.AppImage
             apps/desktop/dist/*.deb
             apps/desktop/dist/*.rpm
+            apps/desktop/dist/*.dmg
+            apps/desktop/dist/*.zip
             apps/desktop/dist/latest*.yml
           if-no-files-found: error
