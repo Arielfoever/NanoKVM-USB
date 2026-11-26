@@ -162,18 +162,10 @@ jobs:
             target: macos
             build_script: build:mac-full
             artifact_name: desktop-macos
-    env:
-      # macOS 签名/公证（未配置时 notarize.js 会跳过，产物为未签名）
-      APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
-      APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
-      APPLE_ID: ${{ secrets.APPLE_ID }}
-      APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
-      APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-      # Windows 签名证书（可选）。注意：不能把空值的 CSC_LINK 传给 electron-builder，
-      # 否则它会认为要签名并尝试导入空路径（macOS 上会报 "apps/desktop not a file"），
-      # 因此只在 Windows + 证书存在时于 build step 内注入。
-      WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
-      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+    # 证书/账号 secrets 不再放在 job 级，避免被同矩阵的 Linux/Windows runner 读到。
+    # 每个 secret 只在真正需要它的 step 内通过 env/with 注入。
+    # macOS 签名/公证在 release 流程中是硬性要求，缺失时直接失败（见下方校验 step）。
+    # Windows 签名证书可选，由 Detect 步骤输出后决定走签名还是未签名构建。
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -197,25 +189,75 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y build-essential python3 libudev-dev rpm
 
+      - name: Detect Windows signing certificate
+        id: certs
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+        run: |
+          if [ -n "$WINDOWS_CERTIFICATE" ]; then
+            echo "windows=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "windows=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Verify macOS signing/notarization secrets
+        if: startsWith(matrix.os, 'macos')
+        shell: bash
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          missing=""
+          [ -n "$APPLE_CERTIFICATE" ] || missing="$missing APPLE_CERTIFICATE"
+          [ -n "$APPLE_CERTIFICATE_PASSWORD" ] || missing="$missing APPLE_CERTIFICATE_PASSWORD"
+          [ -n "$APPLE_ID" ] || missing="$missing APPLE_ID"
+          [ -n "$APPLE_APP_SPECIFIC_PASSWORD" ] || missing="$missing APPLE_APP_SPECIFIC_PASSWORD"
+          [ -n "$APPLE_TEAM_ID" ] || missing="$missing APPLE_TEAM_ID"
+
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required macOS signing/notarization secrets:$missing"
+            echo "::error::Unsigned macOS release artifacts are not allowed; configure the secrets before releasing."
+            exit 1
+          fi
+
+          echo "All macOS signing/notarization secrets are present."
+
       - name: Import macOS code-signing certificate
-        if: startsWith(matrix.os, 'macos') && env.APPLE_CERTIFICATE != ''
+        if: startsWith(matrix.os, 'macos')
         uses: apple-actions/import-codesign-certs@v3
         with:
-          p12-file-base64: ${{ env.APPLE_CERTIFICATE }}
-          p12-password: ${{ env.APPLE_CERTIFICATE_PASSWORD }}
+          p12-file-base64: ${{ secrets.APPLE_CERTIFICATE }}
+          p12-password: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Build desktop package (unsigned)
-        if: matrix.os != 'windows-latest' || env.WINDOWS_CERTIFICATE == ''
+      - name: Build desktop package (macOS, signed + notarized)
+        if: startsWith(matrix.os, 'macos')
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
 
-      - name: Build desktop package (signed, Windows)
-        if: matrix.os == 'windows-latest' && env.WINDOWS_CERTIFICATE != ''
+      - name: Build desktop package (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
+
+      - name: Build desktop package (Windows, unsigned)
+        if: matrix.os == 'windows-latest' && steps.certs.outputs.windows != 'true'
+        run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
+
+      - name: Build desktop package (Windows, signed)
+        if: matrix.os == 'windows-latest' && steps.certs.outputs.windows == 'true'
         env:
-          CSC_LINK: ${{ env.WINDOWS_CERTIFICATE }}
-          CSC_KEY_PASSWORD: ${{ env.WINDOWS_CERTIFICATE_PASSWORD }}
+          CSC_LINK: ${{ secrets.WINDOWS_CERTIFICATE }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         run: pnpm --filter @nanokvm/desktop run ${{ matrix.build_script }}
 
       - name: Upload desktop artifacts
