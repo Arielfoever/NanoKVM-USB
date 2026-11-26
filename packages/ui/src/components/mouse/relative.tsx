@@ -19,8 +19,23 @@ export const Relative = () => {
   const mouseRef = useRef(new MouseReportRelative())
   const isLockedRef = useRef(false)
   const lastScrollTimeRef = useRef(0)
+  const hasShownMessageRef = useRef(false)
 
-  showMessage()
+  // 只在进入相对模式时提示一次；之前每次 render 都调用 message.open，导致反复弹提示
+  useEffect(() => {
+    if (hasShownMessageRef.current) return
+    hasShownMessageRef.current = true
+
+    messageApi.open({
+      key: 'requestPointer',
+      type: 'info',
+      content: t('mouse.requestPointer'),
+      duration: 3,
+      style: {
+        marginTop: '40vh'
+      }
+    })
+  }, [messageApi, t])
 
   useEffect(() => {
     const screen = document.getElementById('video')
@@ -136,18 +151,6 @@ export const Relative = () => {
     await getDevice().sendMouseData([0x01, ...report])
 
     mouseJiggler.moveEventCallback()
-  }
-
-  function showMessage(): void {
-    messageApi.open({
-      key: 'requestPointer',
-      type: 'info',
-      content: t('mouse.requestPointer'),
-      duration: 3,
-      style: {
-        marginTop: '40vh'
-      }
-    })
   }
 
   function disableEvent(event: Event): void {
