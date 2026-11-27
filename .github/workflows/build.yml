@@ -108,7 +108,7 @@ jobs:
           - os: macos-latest
             target: macos
             build_script: build:mac-unsigned
-            artifact_name: desktop-macos-x64
+            artifact_name: desktop-macos-x64-arm64
     steps:
       - name: Checkout
         uses: actions/checkout@v7
