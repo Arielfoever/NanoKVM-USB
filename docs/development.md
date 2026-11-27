@@ -92,7 +92,7 @@ packages/core     ← 协议编解码、Device 门面、接口定义（不依赖
 
 - **`.github/workflows/build.yml`**（push main / PR / 手动触发）：
   - `quality`：lint + format:check + typecheck + 单测；
-  - `build-browser` / `build-desktop`（linux、windows、macOS x64）：不做改动路径过滤，每次触发都全量构建并上传安装包；macOS 使用 `build:mac-unsigned` 做未签名构建，仅验证可打包，不依赖发布证书；同一分支的旧任务会被自动取消。
+  - `build-browser` / `build-desktop`（linux、windows、macOS x64 + arm64）：不做改动路径过滤，每次触发都全量构建并上传安装包；macOS 使用 `build:mac-unsigned` 同时构建 Intel x64 与 Apple Silicon arm64 的未签名产物，仅验证可打包，不依赖发布证书；同一分支的旧任务会被自动取消。
   - 缓存：`setup-node` 的 `cache: pnpm` 缓存 pnpm store；`build-desktop` 额外用 `actions/cache` 缓存 Electron 与 electron-builder 工具链（key 含 OS / 架构 / `pnpm-lock.yaml` 哈希），release 的桌面矩阵复用同一套缓存。
 - **`.github/workflows/release.yml`**（手动触发 `workflow_dispatch`）：
   1. 从根 `package.json` 读取版本号，创建/复用 `v<version>` tag 并推送；

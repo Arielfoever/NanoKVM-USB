@@ -89,7 +89,7 @@
 | Docker 构建 | ✅ `docker build -t nanokvm-usb-web:pr-check .` 成功（前端构建 + nginx 镜像） |
 | macOS 签名/公证 | ⏳ 需在 release workflow + 真实证书环境验证；`mac.forceCodeSigning: true` 已确保缺证书时构建失败 |
 | CI 构建策略 | ✅ `build.yml` 移除 `detect-changes` / `paths-filter`，push / PR / 手动触发都全量构建浏览器与三平台桌面 |
-| CI macOS 未签名构建 | ⏳ `build.yml` 新增 macOS x64 矩阵项，使用 `build:mac-unsigned` 显式关闭签名；需在 GitHub Actions 跑一次 |
+| CI macOS 未签名构建 | ⏳ `build.yml` 新增 macOS 矩阵项，使用 `build:mac-unsigned` 同时构建 x64 与 arm64（Apple Silicon）并显式关闭签名；需在 GitHub Actions 跑一次 |
 | CI 缓存 | ⏳ `build-desktop` / release 桌面矩阵已加入 Electron + electron-builder 工具链缓存（OS/架构/lockfile 区分），pnpm store 沿用 `setup-node` 缓存；需 CI 两次运行确认命中 |
 | 硬件/GUI 冒烟 | ⏳ 摄像头、串口热插拔/自动重连、全屏 + 键盘锁、相对鼠标提示、Web Serial 取消选择、快捷键等需按手工清单在真机复测 |
 
@@ -104,7 +104,7 @@
 7. 相对鼠标模式只弹一次操作提示，重渲染不再重复弹出。
 8. 长时间串口运行（含异常上报）内存不持续增长。
 9. release workflow 在版本不一致、tag 已存在、release 已存在、mac secrets 缺失时均能失败阻断。
-10. `build.yml` 的 macOS x64 未签名构建能产出 dmg/zip 并上传 artifact。
+10. `build.yml` 的 macOS x64 + arm64 未签名构建能分别产出 dmg/zip 并上传 artifact。
 11. CI 第二次运行时 Electron/electron-builder 缓存命中，构建时间下降。
 
 ## 6. 风险与回滚
