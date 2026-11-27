@@ -127,5 +127,3 @@ pnpm dev:desktop:nosandbox     # = electron-vite dev --noSandbox，仅开发期�
 2. `pnpm typecheck`、`pnpm lint`
 3. `pnpm build:browser`、`pnpm build:desktop`；桌面端再跑一次 `build:unpack`
 4. 手工冒烟：摄像头出图、串口连接/自动重连、键盘（含右 Shift/AltGr）、鼠标三种模式、快捷键、粘贴、虚拟键盘、菜单折叠持久化、分辨率/旋转/缩放、音频、拔插断连、语言切换、桌面端自动更新检查。
-
-> 冒烟清单的完整 16 项见 [docs/refactor-plan.md 附录 C](./refactor-plan.md)。
